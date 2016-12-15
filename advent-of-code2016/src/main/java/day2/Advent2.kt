@@ -1,8 +1,6 @@
 package day2
 
-import day1.Turn
-import day2.Move.*
-import java.util.*
+import parseInput
 
 /**
 --- Day 2: Bathroom Security ---
@@ -40,11 +38,7 @@ RRDDD
 LURDL
 UUUUD"""))
 
-    val input = Thread.currentThread()
-            .contextClassLoader
-            .getResourceAsStream("day2-input.txt")
-            .bufferedReader()
-            .use { it.readText() }
+    val input = parseInput("day2-input.txt")
 
     println(findCode(input))
 }

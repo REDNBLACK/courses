@@ -1,5 +1,7 @@
 package day3
 
+import parseInput
+
 /**
 --- Day 3: Squares With Three Sides ---
 
@@ -18,11 +20,7 @@ In your puzzle input, how many of the listed triangles are possible?
 fun main(args: Array<String>) {
     println(findPossible("5 10 25").size)
 
-    val input = Thread.currentThread()
-            .contextClassLoader
-            .getResourceAsStream("day3-input.txt")
-            .bufferedReader()
-            .use { it.readText() }
+    val input = parseInput("day3-input.txt")
 
     println(findPossible(input).size)
 }

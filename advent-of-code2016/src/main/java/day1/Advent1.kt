@@ -3,8 +3,7 @@ package day1
 import day1.Direction.*
 import day1.Turn.LEFT
 import day1.Turn.RIGHT
-import java.io.File
-import java.nio.file.Files
+import parseInput
 
 /**
  * --- Day 1: No Time for a Taxicab ---
@@ -33,11 +32,7 @@ fun main(args: Array<String>) {
     println(findDestination("R2, R2, R2").countBlocks() == 2)
     println(findDestination("R5, L5, R5, R3").countBlocks() == 12)
 
-    val input = Thread.currentThread()
-            .contextClassLoader
-            .getResourceAsStream("day1-input.txt")
-            .bufferedReader()
-            .use { it.readText() }
+    val input = parseInput("day1-input.txt")
 
     println(findDestination(input).countBlocks())
 }
