@@ -101,4 +101,5 @@ fun findCode(input: String): String {
 fun parseMoves(input: String): List<List<Move>> {
     return input.split("\n")
             .map { it.filter(Char::isLetter).map { s -> Move.fromString(s.toString()) } }
+            .filter { it.isNotEmpty() }
 }
