@@ -66,13 +66,6 @@ data class Operation(val type: Operation.Type, val register: String, val value: 
         }
     }
 
-    fun isRegisterOperation() = try {
-        value.toInt()
-        false
-    } catch (e: NumberFormatException) {
-        true
-    }
-
     companion object {
         fun fromString(str: String): Operation {
             val args = str.split(" ")
@@ -87,67 +80,38 @@ data class Operation(val type: Operation.Type, val register: String, val value: 
 
 fun executeOperations(input: String): Map<String, Int> {
     val operations = parseOperations(input)
-    val stack = mutableMapOf<String, MutableList<Int>>()
-    val lastOperations = mutableMapOf<String, Int>()
+    val registers = mutableMapOf<String, Int>()
 
-    fun getLastValue(register: String): Int {
-        return stack.getOrElse(register, { throw NullPointerException() }).last()
+    fun getRegisterValue(data: String): Int {
+        return try { data.toInt() } catch (e: NumberFormatException) { registers.getOrElse(data, { 0 }) }
     }
 
-    fun addValue(register: String, value: Int) {
-        stack.getOrElse(register, { throw NullPointerException() }).add(value)
-    }
+    var index = 0
+    while (true) {
+        if (index >= operations.size) break
 
-    var skipTimes = 0
-
-    for (operation in operations) {
-        if (skipTimes > 0) {
-            skipTimes -= 1
-            continue
-        }
-
+        val operation = operations[index]
         when (operation.type) {
-            COPY -> when {
-                operation.isRegisterOperation() -> {
-                    val lastValue = getLastValue(operation.register)
-                    lastOperations.put(operation.register, lastValue)
-                    addValue(operation.register, lastValue)
-                }
-                else -> {
-                    val value = operation.value.toInt()
-                    lastOperations.put(operation.register, value)
-                    stack.getOrPut(operation.register, { mutableListOf(value) })
-                }
+            COPY -> {
+                registers.put(operation.register, getRegisterValue(operation.value))
             }
-            INCR -> {
-                val lastValue = getLastValue(operation.register)
-                val newValue = lastValue + operation.value.toInt()
-                lastOperations.put(operation.register, newValue)
-                addValue(operation.register, lastValue + operation.value.toInt())
-            }
-            DECR -> {
-                val lastValue = getLastValue(operation.register)
-                val newValue = lastValue - operation.value.toInt()
-                lastOperations.put(operation.register, newValue)
-                addValue(operation.register, lastValue - operation.value.toInt())
+            DECR, INCR -> {
+                val oldValue = getRegisterValue(operation.register)
+                val curValue = if (operation.type == DECR) -operation.value.toInt() else operation.value.toInt()
+
+                registers.put(operation.register, oldValue + curValue)
             }
             JUMP -> {
-                val pos = operation.value.toInt()
-
-                if (pos > 0) {
-                    skipTimes = pos - 1
-                } else {
-                    val list = stack.getOrElse(operation.register, { throw NullPointerException() })
-                    lastOperations.put(
-                            operation.register,
-                            list.getOrElse(list.size - pos, { 0 })
-                    )
+                if (getRegisterValue(operation.register) != 0) {
+                    index += getRegisterValue(operation.value) - 1
                 }
             }
         }
+
+        index++
     }
 
-    return lastOperations
+    return registers
 }
 
 fun parseOperations(input: String): List<Operation> {
