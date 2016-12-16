@@ -1,7 +1,5 @@
 package day7
 
-import isPalindrome
-import middleNChars
 import parseInput
 
 /**
@@ -36,18 +34,26 @@ ioxxoj[asdfgh]zxcvbn
 
 data class IP(val sequences: List<String>, val hypernet: List<String>) {
     fun supportsTLS(): Boolean {
-        if (hypernet.any { it.middleNChars(4).isPalindrome() }) return false
+        if (hypernet.any { it.hasAbba() }) return false
 
-        return sequences.any { it.middleNChars(4).isPalindrome() }
+        return sequences.any { it.hasAbba() }
+    }
+
+    private fun String.hasAbba(): Boolean {
+        if (this.length < 4) return false
+
+        return (0..this.length - 4).any {
+            val part = this.substring(it, it + 4)
+            part == part.reversed() && part.groupBy { it }.size > 1
+        }
     }
 
     companion object {
-        val hypernetPattern = """\[(.+?)\]""".toRegex()
-        val sequencePattern = """.(?![^\[]*\])""".toRegex()
+        val pattern = """\[([^\]]+)\]""".toRegex()
 
         fun fromString(str: String): IP {
-            val sequences = sequencePattern.findAll(str).map { it.groupValues[0] }.joinToString("").split("]")
-            val hypernets = hypernetPattern.findAll(str).map { it.groupValues[1] }.toList()
+            val hypernets = pattern.findAll(str).map { it.groupValues[1] }.toList()
+            val sequences = pattern.split(str)
 
             return IP(sequences, hypernets)
         }
