@@ -47,6 +47,10 @@ In this example, the correct checksum would therefore be 01100.
 
 The first disk you have to fill has length 272. Using the initial state in your puzzle input, what is the correct checksum?
 
+--- Part Two ---
+
+The second disk you have to fill has length 35651584. Again using the initial state in your puzzle input, what is the correct checksum for this disk?
+
  */
 
 fun main(args: Array<String>) {
@@ -60,6 +64,7 @@ fun main(args: Array<String>) {
     println("10000".dragonCurve(20).checkSum() == "01100")
 
     println("01110110101001000".dragonCurve(272).checkSum())
+    println("01110110101001000".dragonCurve(35651584).checkSum())
 }
 
 fun String.dragonCurve(length: Int? = null): String = this.reversed()
