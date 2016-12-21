@@ -53,25 +53,15 @@ dec a
 
 data class Operation(val type: Operation.Type, val register: String, val value: String) {
     enum class Type {
-        COPY, INCR, DECR, JUMP;
-
-        companion object {
-            fun fromString(str: String) = when (str) {
-                "cpy" -> COPY
-                "inc" -> INCR
-                "dec" -> DECR
-                "jnz" -> JUMP
-                else -> throw IllegalArgumentException("Unsupported operation type: $str")
-            }
-        }
+        CPY, INC, DEC, JNZ;
     }
 
     companion object {
         fun fromString(str: String): Operation {
             val args = str.split(" ")
-            val type = Type.fromString(args[0])
-            val register = if (type == COPY) args[2] else args[1]
-            val value = if (type == COPY) args[1] else args.getOrElse(2, { "1" })
+            val type = Type.valueOf(args[0].toUpperCase())
+            val register = if (type == CPY) args[2] else args[1]
+            val value = if (type == CPY) args[1] else args.getOrElse(2, { "1" })
 
             return Operation(type, register, value)
         }
@@ -92,16 +82,16 @@ fun executeOperations(input: String): Map<String, Int> {
 
         val operation = operations[index]
         when (operation.type) {
-            COPY -> {
+            CPY -> {
                 registers.put(operation.register, getRegisterValue(operation.value))
             }
-            DECR, INCR -> {
+            DEC, INC -> {
                 val oldValue = getRegisterValue(operation.register)
-                val curValue = if (operation.type == DECR) -operation.value.toInt() else operation.value.toInt()
+                val curValue = if (operation.type == DEC) -operation.value.toInt() else operation.value.toInt()
 
                 registers.put(operation.register, oldValue + curValue)
             }
-            JUMP -> {
+            JNZ -> {
                 if (getRegisterValue(operation.register) != 0) {
                     index += getRegisterValue(operation.value) - 1
                 }

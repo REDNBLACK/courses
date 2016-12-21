@@ -46,20 +46,10 @@ UUUUD"""))
 data class Pos(val x: Int, val y: Int)
 
 enum class Move(val pos: Pos) {
-    UP(Pos(-1, 0)),
-    DOWN(Pos(1, 0)),
-    LEFT(Pos(0, -1)),
-    RIGHT(Pos(0, 1));
-
-    companion object {
-        fun fromString(str: String) = when (str) {
-            "U" -> UP
-            "D" -> DOWN
-            "L" -> LEFT
-            "R" -> RIGHT
-            else -> throw RuntimeException("No such move!")
-        }
-    }
+    U(Pos(-1, 0)),
+    D(Pos(1, 0)),
+    L(Pos(0, -1)),
+    R(Pos(0, 1));
 }
 
 fun findCode(input: String): String {
@@ -94,6 +84,6 @@ fun findCode(input: String): String {
 
 fun parseMoves(input: String): List<List<Move>> {
     return input.split("\n")
-            .map { it.filter(Char::isLetter).map { s -> Move.fromString(s.toString()) } }
+            .map { it.filter(Char::isLetter).map { s -> Move.valueOf(s.toString()) } }
             .filter { it.isNotEmpty() }
 }
