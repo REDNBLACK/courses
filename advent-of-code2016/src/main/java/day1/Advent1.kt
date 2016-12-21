@@ -1,8 +1,6 @@
 package day1
 
 import day1.Direction.*
-import day1.Turn.LEFT
-import day1.Turn.RIGHT
 import parseInput
 
 /**
@@ -37,41 +35,27 @@ fun main(args: Array<String>) {
     println(findDestination(input).countBlocks())
 }
 
-enum class Turn {
-    RIGHT, LEFT;
-
-    companion object {
-        fun fromString(str: String) = when (str) {
-            "L" -> LEFT
-            "R" -> RIGHT
-            else -> throw RuntimeException("No such direction!")
-        }
-    }
+enum class Turn(val value: Int) {
+    R(1), L(-1);
 }
-enum class Direction {
-    NORTH, EAST, SOUTH, WEST;
+enum class Direction(val value: Int) {
+    NORTH(0), EAST(1), SOUTH(2), WEST(3);
 }
 
 data class State(val direction: Direction, val x: Int, val y: Int) {
-    fun countBlocks() = x + y
+    fun countBlocks() = Math.abs(x) + Math.abs(y)
 }
 data class Move(val turn: Turn, val steps: Int)
 
 fun findDestination(input: String): State {
     return parseMoves(input).fold(State(NORTH, 0, 0)) { state, move ->
-        when (move.turn) {
-            LEFT -> when (state.direction) {
-                NORTH -> state.copy(direction = WEST, x = state.x - move.steps)
-                SOUTH -> state.copy(direction = EAST, x = state.x + move.steps)
-                EAST -> state.copy(direction = NORTH, y = state.y + move.steps)
-                WEST -> state.copy(direction = SOUTH, y = state.y - move.steps)
-            }
-            RIGHT -> when (state.direction) {
-                NORTH -> state.copy(direction = EAST, x = state.x + move.steps)
-                SOUTH -> state.copy(direction = WEST, x = state.x + move.steps)
-                EAST -> state.copy(direction = SOUTH, y = state.y - move.steps)
-                WEST -> state.copy(direction = NORTH, y = state.y + move.steps)
-            }
+        val direction = Direction.values()[(state.direction.value + move.turn.value + 4) % 4]
+
+        when (direction) {
+            NORTH -> state.copy(direction, x = state.x - move.steps)
+            SOUTH -> state.copy(direction, x = state.x + move.steps)
+            EAST -> state.copy(direction, y = state.y + move.steps)
+            WEST -> state.copy(direction, y = state.y - move.steps)
         }
     }
 }
@@ -80,7 +64,7 @@ fun parseMoves(input: String): List<Move> {
     return input.split(",")
             .map(String::trim)
             .map { it ->
-                val turn = Turn.fromString(it[0].toString())
+                val turn = Turn.valueOf(it[0].toString())
                 val steps = it[1].toString().toInt()
 
                 Move(turn, steps)
