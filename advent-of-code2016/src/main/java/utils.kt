@@ -1,3 +1,6 @@
+import java.math.BigInteger
+import java.security.MessageDigest
+
 fun parseInput(file: String): String {
     return Thread.currentThread()
             .contextClassLoader
@@ -16,3 +19,7 @@ fun <T> List<T>.chunk(size: Int): List<List<T>> {
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int) -> INNER): Array<Array<INNER>>
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
+
+
+fun String.toMD5() = MessageDigest.getInstance("MD5").digest(this.toByteArray())
+fun ByteArray.toHex() = String.format("%0" + (this.size shl 1) + "X", BigInteger(1, this))
