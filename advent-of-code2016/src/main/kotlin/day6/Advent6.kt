@@ -61,18 +61,14 @@ enarar"""
 }
 
 data class Message(val payload: String) {
-    fun mostFrequentChar(): Char? {
-        return payload.toCharArray()
-                .groupBy { it }
-                .mapValues { it.value.count() }
-                .maxBy { it.value }
-                ?.key
-    }
+    fun mostFrequentChar() = payload.toCharArray()
+            .groupBy { it }
+            .mapValues { it.value.count() }
+            .maxBy { it.value }
+            ?.key
 }
 
-fun findMostFrequentChars(input: String): List<Char?> {
-    return parseMessages(input).map { it.mostFrequentChar() }
-}
+fun findMostFrequentChars(input: String) = parseMessages(input).map { it.mostFrequentChar() }
 
 fun parseMessages(input: String): List<Message> {
     val lines = input.split("\n")

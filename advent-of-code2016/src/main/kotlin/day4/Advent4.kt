@@ -52,8 +52,7 @@ totally-real-room-200[decoy]
 }
 
 data class Room(val name: String, val sectorId: Int, val checksum: String) {
-    fun isValid() = this.name
-            .filter { it != '-' }
+    fun isValid() = name.filter { it != '-' }
             .groupBy { it }
             .map { -it.value.size to it.key }
             .sortedWith(Comparator.comparing(Pair<Int, Char>::first).thenComparing(Pair<Int, Char>::second))

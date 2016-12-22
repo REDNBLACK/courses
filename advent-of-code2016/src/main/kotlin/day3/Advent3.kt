@@ -25,15 +25,11 @@ fun main(args: Array<String>) {
     println(findPossible(input).size)
 }
 
-data class Triangle(val x: Int, val y: Int, val z: Int)
-
-fun findPossible(input: String): List<Triangle> {
-    val triangles = parseTriangles(input)
-
-    return triangles.filter { t ->
-        t.x + t.y > t.z && t.x + t.z > t.y && t.y + t.z > t.x
-    }
+data class Triangle(val x: Int, val y: Int, val z: Int) {
+    fun isPossible() = x + y > z && x + z > y && y + z > x
 }
+
+fun findPossible(input: String) = parseTriangles(input).filter { it.isPossible() }
 
 fun parseTriangles(input: String): List<Triangle> {
     return input.split("\n")

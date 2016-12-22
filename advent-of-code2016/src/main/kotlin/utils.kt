@@ -21,5 +21,5 @@ inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline inne
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
 
 
-fun String.toMD5() = MessageDigest.getInstance("MD5").digest(this.toByteArray())
-fun ByteArray.toHex() = String.format("%0" + (this.size shl 1) + "X", BigInteger(1, this))
+fun String.toMD5() = MessageDigest.getInstance("MD5").digest(toByteArray())
+fun ByteArray.toHex() = String.format("%0" + (size shl 1) + "X", BigInteger(1, this))

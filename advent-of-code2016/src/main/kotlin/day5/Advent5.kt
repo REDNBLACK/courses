@@ -42,8 +42,9 @@ Given the actual Door ID and this new method, what is the password? Be extra pro
 
 fun main(args: Array<String>) {
     val algorithm1 = { hash: String, array: CharArray ->
-        if (hash.startsWith("0".repeat(5))) {
-            val pos = array.indexOfFirst { it == ' ' }
+        val prefix = "0".repeat(5)
+        if (hash.startsWith(prefix)) {
+            val pos = array.indexOfFirst { it == Char.MIN_SURROGATE }
             array[pos] = hash[5]
         }
 
@@ -51,9 +52,10 @@ fun main(args: Array<String>) {
     }
 
     val algorithm2 = { hash: String, array: CharArray ->
-        if (hash.startsWith("0".repeat(5))) {
+        val prefix = "0".repeat(5)
+        if (hash.startsWith(prefix)) {
             val pos = try { hash[5].toString().toInt() } catch (e: Exception) { Int.MAX_VALUE }
-            if (pos < array.size && array[pos] == ' ') {
+            if (pos < array.size && array[pos] == Char.MIN_SURROGATE) {
                 array[pos] = hash[6]
             }
         }
@@ -70,13 +72,13 @@ fun main(args: Array<String>) {
 
 fun findPassword(input: String, algorithm: (String, CharArray) -> CharArray, length: Int): String {
     tailrec fun find(i: Int, array: CharArray): CharArray {
-        if (!array.contains(' ')) return array
+        if (!array.contains(Char.MIN_SURROGATE)) return array
 
         val hash = (input + i).toMD5().toHex()
 
         return find(i + 1, algorithm(hash, array))
     }
 
-    return find(0, " ".repeat(length).toCharArray()).joinToString("").toLowerCase()
+    return find(0, "${Char.MIN_SURROGATE}".repeat(length).toCharArray()).joinToString("").toLowerCase()
 }
 

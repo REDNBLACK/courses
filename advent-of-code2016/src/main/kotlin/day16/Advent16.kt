@@ -67,16 +67,16 @@ fun main(args: Array<String>) {
     println("01110110101001000".dragonCurve(35651584).checkSum())
 }
 
-fun String.dragonCurve(length: Int? = null): String = this.reversed()
+fun String.dragonCurve(length: Int? = null): String = reversed()
         .map { bit -> if (bit == '0') '1' else '0' }
         .joinToString("")
         .let { it -> this + '0' + it }
         .let { if (length != null && it.length < length) it.dragonCurve(length) else it }
         .let { if (length != null) it.substring(0, length) else it }
 
-fun String.checkSum(): String = (0..this.length - 1 step 2)
-        .map { this[it] to this.getOrElse(it + 1, { '2' }) }
-        .filter { it.first != '2' && it.second != '2' }
+fun String.checkSum(): String = (0..length - 1 step 2)
+        .map { this[it] to getOrElse(it + 1, { Char.MIN_SURROGATE }) }
+        .filter { it.first != Char.MIN_SURROGATE && it.second != Char.MIN_SURROGATE }
         .map { if (it.first == it.second) '1' else '0' }
         .joinToString("")
         .let { if (it.length % 2 == 0) it.checkSum() else it }

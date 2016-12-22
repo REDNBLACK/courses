@@ -33,11 +33,7 @@ ioxxoj[asdfgh]zxcvbn
 }
 
 data class IP(val sequences: List<String>, val hypernet: List<String>) {
-    fun supportsTLS(): Boolean {
-        if (hypernet.any { it.hasAbba() }) return false
-
-        return sequences.any { it.hasAbba() }
-    }
+    fun supportsTLS() = !hypernet.any { it.hasAbba() } && sequences.any { it.hasAbba() }
 
     private fun String.hasAbba(): Boolean {
         if (this.length < 4) return false

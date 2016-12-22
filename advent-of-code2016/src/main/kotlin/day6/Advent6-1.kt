@@ -22,14 +22,10 @@ fun main(args: Array<String>) {
     println(findLeastFrequentChars(input).joinToString(""))
 }
 
-fun Message.findLeastFrequentChar(): Char? {
-    return payload.toCharArray()
-            .groupBy { it }
-            .mapValues { it.value.count() }
-            .minBy { it.value }
-            ?.key
-}
+fun Message.findLeastFrequentChar() = payload.toCharArray()
+        .groupBy { it }
+        .mapValues { it.value.count() }
+        .minBy { it.value }
+        ?.key
 
-fun findLeastFrequentChars(input: String): List<Char?> {
-    return parseMessages(input).map { it.findLeastFrequentChar() }
-}
+fun findLeastFrequentChars(input: String) = parseMessages(input).map { it.findLeastFrequentChar() }

@@ -35,13 +35,7 @@ fun main(args: Array<String>) {
     println(findPossibleVertical(input).size)
 }
 
-fun findPossibleVertical(input: String): List<Triangle> {
-    val triangles = parseTrianglesVertical(input)
-
-    return triangles.filter { t ->
-        t.x + t.y > t.z && t.x + t.z > t.y && t.y + t.z > t.x
-    }
-}
+fun findPossibleVertical(input: String) = parseTrianglesVertical(input).filter { it.isPossible() }
 
 fun parseTrianglesVertical(input: String): List<Triangle> {
     val lines = input.split("\n")
