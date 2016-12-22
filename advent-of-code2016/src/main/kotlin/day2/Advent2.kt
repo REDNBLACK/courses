@@ -30,17 +30,55 @@ So, in this example, the bathroom code is 1985.
 
 Your puzzle input is the instructions from the document you found at the front desk. What is the bathroom code?
 
+--- Part Two ---
+
+You finally arrive at the bathroom (it's a several minute walk from the lobby so visitors can behold the many fancy conference rooms and water coolers on this floor) and go to punch in the code. Much to your bladder's dismay, the keypad is not at all like you imagined it. Instead, you are confronted with the result of hundreds of man-hours of bathroom-keypad-design meetings:
+
+1
+2 3 4
+5 6 7 8 9
+A B C
+D
+You still start at "5" and stop when you're at an edge, but given the same instructions as above, the outcome is very different:
+
+You start at "5" and don't move at all (up and left are both edges), ending at 5.
+Continuing from "5", you move right twice and down three times (through "6", "7", "B", "D", "D"), ending at D.
+Then, from "D", you move five more times (through "D", "B", "C", "C", "B"), ending at B.
+Finally, after five more moves, you end at 3.
+So, given the actual keypad layout, the code would be 5DB3.
+
+Using the same instructions in your puzzle input, what is the correct bathroom code?
+
  */
 
 fun main(args: Array<String>) {
-    println(findCode("""ULL
+    val test = """ULL
 RRDDD
 LURDL
-UUUUD"""))
-
+UUUUD"""
     val input = parseInput("day2-input.txt")
 
-    println(findCode(input))
+    val startPos1 = Pos(1, 1)
+    val matrix1 = arrayOf(
+            intArrayOf(1, 2, 3),
+            intArrayOf(4, 5, 6),
+            intArrayOf(7, 8, 9)
+    )
+
+    println(findCode(test, matrix1, startPos1))
+    println(findCode(input, matrix1, startPos1))
+
+    val startPos2 = Pos(2, 0)
+    val matrix2 = arrayOf(
+            intArrayOf(0, 0, 1, 0, 0),
+            intArrayOf(0, 2, 3, 4, 0),
+            intArrayOf(5, 6, 7, 8, 9),
+            intArrayOf(0, 'A'.toInt(), 'B'.toInt(), 'C'.toInt(), 0),
+            intArrayOf(0, 0, 'D'.toInt(), 0, 0)
+    )
+
+    println(findCode(test, matrix2, startPos2))
+    println(findCode(input, matrix2, startPos2))
 }
 
 data class Pos(val x: Int, val y: Int)
@@ -52,33 +90,19 @@ enum class Move(val pos: Pos) {
     R(Pos(0, 1));
 }
 
-fun findCode(input: String): String {
-    val matrix = arrayOf(
-            intArrayOf(1, 2, 3),
-            intArrayOf(4, 5, 6),
-            intArrayOf(7, 8, 9)
-    )
-
-    var startPos = Pos(1, 1)
+fun findCode(input: String, matrix: Array<IntArray>, startPos: Pos): String {
+    var resultPos = startPos.copy()
 
     return parseMoves(input)
             .map {
-                it.fold(startPos, { prevPos, move ->
-                    val pos = prevPos.copy(
-                            x = prevPos.x + move.pos.x,
-                            y = prevPos.y + move.pos.y
-                    )
-
-                    try {
-                        matrix[pos.x][pos.y]
-                        startPos = pos
-                        pos
-                    } catch (e: ArrayIndexOutOfBoundsException) {
-                        prevPos
-                    }
+                it.fold(resultPos, { prevPos, move ->
+                    val pos = prevPos.copy(x = prevPos.x + move.pos.x, y = prevPos.y + move.pos.y)
+                    resultPos = if (matrix.getOrNull(pos.x)?.getOrNull(pos.y) ?: 0 != 0) pos else prevPos
+                    resultPos
                 })
             }
             .map { matrix[it.x][it.y] }
+            .map { if (it in 1..9) it.toString() else it.toChar().toString() }
             .joinToString("")
 }
 
