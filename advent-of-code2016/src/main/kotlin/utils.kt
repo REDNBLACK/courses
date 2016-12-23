@@ -17,6 +17,8 @@ fun <T> List<T>.chunk(size: Int): List<List<T>> {
     }
 }
 
+fun String.chunk(size: Int) = (0..length - size).map { i -> substring(i, i + size) }
+
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int) -> INNER): Array<Array<INNER>>
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
 
