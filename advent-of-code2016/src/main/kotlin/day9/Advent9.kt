@@ -1,7 +1,6 @@
 package day9
 
 import parseInput
-import java.util.regex.Pattern
 
 /**
 --- Day 9: Explosives in Cyberspace ---
@@ -31,44 +30,38 @@ What is the decompressed length of the file (your puzzle input)? Don't count whi
  */
 
 fun main(args: Array<String>) {
-    println(decompressInput("A(1x5)BC") == "ABBBBBC")
-    println(decompressInput("(3x3)XYZ") == "XYZXYZXYZ")
-    println(decompressInput("A(2x2)BCD(2x2)EFG") == "ABCBCDEFEFG")
-    println(decompressInput("(6x1)(1x3)A") == "(1x3)A")
-    println(decompressInput("X(8x2)(3x3)ABCY") == "X(3x3)ABC(3x3)ABCY")
+    println(calculateLength("A(1x5)BC") == 7L)
+    println(calculateLength("(3x3)XYZ") == 9L)
+    println(calculateLength("A(2x2)BCD(2x2)EFG") == 11L)
+    println(calculateLength("(6x1)(1x3)A") == 6L)
+    println(calculateLength("X(8x2)(3x3)ABCY") == 18L)
 
-    val input = parseInput("day9-input.txt")
+    val input = parseInput("day9-input.txt").trim()
 
-    println(parseBlocks(input))
+    println(calculateLength(input))
+    println(calculateLength(input, true))
 }
 
-data class Block(
-        val symbolsCount: Int,
-        val multiplyTimes: Int,
-        val str: String,
-        val src: String,
-        val toReplace: String) {
-    fun transform(): Pair<String, String> {
-        fun String.decompress() = substring(0, symbolsCount).repeat(multiplyTimes) + substring(symbolsCount, str.length)
+data class Operation(val pos: Int, val index: Int, val offset: Int, val multiplier: Int) {
+    companion object {
+        val regex = """\((\d+)x(\d+)\)""".toRegex()
 
-        return src to src.replace(toReplace, str.decompress())
+        fun fromString(str: String): Operation? {
+            val g = regex.find(str)?.groupValues ?: return null
+            val pos = str.indexOf(g[0])
+
+            return Operation(pos = pos, index = pos + g[0].length, offset = g[1].toInt(), multiplier = g[2].toInt())
+        }
     }
 }
 
-fun decompressInput(input: String) = parseBlocks(input)
-        .map(Block::transform)
-        .fold(input, { str, block -> str.replace(block.first, block.second) })
+fun calculateLength(s: String, second: Boolean = false): Long {
+    val o = Operation.fromString(s) ?: return s.length.toLong()
+    val calculated = if (second) calculateLength(s.substring(o.index, o.index + o.offset), second) else o.offset.toLong()
 
-fun parseBlocks(input: String): List<Block> {
-    fun parse(input: String, regex: Regex) = regex.findAll(input)
-            .map { it.groupValues }
-            .map { Block(it[1].toInt(), it[2].toInt(), it[3], it[0], "(${it[1]}x${it[2]})${it[3]}") }
-            .toList()
-
-    val mainPattern = """(?:[A-Z]*)?\((\d)x(\d)\)([A-Z]*)""".toRegex()
-    val alternatePattern = """(?:[A-Z]*)?\((\d)x(\d)\)(.*)""".toRegex()
-
-    return parse(input, mainPattern).let {
-        blocks -> if (blocks.none { it.str == "" }) blocks else parse(input, alternatePattern)
-    }
+    return listOf(
+            s.substring(1..o.pos).length.toLong(),
+            calculated * o.multiplier,
+            calculateLength(s.substring(o.index + o.offset, s.length), second)
+    ).sum()
 }
