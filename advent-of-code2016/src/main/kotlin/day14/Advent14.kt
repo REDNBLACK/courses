@@ -61,13 +61,9 @@ fun main(args: Array<String>) {
     println(findLast(hash1("jlmsuwbz")))
 
     val hash2 = fun (salt: String): (Int) -> (String) = { it ->
-        var start = (salt + it).toMD5().toHex().toLowerCase()
-
-        for (i in 0..2015) {
-            start = start.toMD5().toHex().toLowerCase()
-        }
-
-        start
+        (0..2015).fold((salt + it).toMD5().toHex().toLowerCase(), { result, i ->
+            result.toMD5().toHex().toLowerCase()
+        })
     }
 
     println(findLast(hash2("abc")) == 22551)
@@ -80,19 +76,14 @@ fun findLast(hashing: (Int) -> String, lastIndex: Int = 64): Int? {
             .find { it.groupBy { it }.size == 1 }
             ?.get(0)
 
-
-    val hashes = (0..999).map { hashing(it) }.toMutableList()
-
-    tailrec fun findAll(i: Int = 0, collector: List<Int> = listOf()): List<Int> {
+    tailrec fun findAll(hashes: Array<String>, i: Int = 0, collector: List<Int> = listOf()): List<Int> {
         if (collector.size == lastIndex) return collector
 
         val current = hashes[i % 1000].findRepeatingChar(3).toString().repeat(5)
         hashes[i % 1000] = hashing(i + 1000)
 
-        if (hashes.none { it.contains(current) }) return findAll(i + 1, collector)
-
-        return findAll(i + 1, collector + i)
+        return if (hashes.none { it.contains(current) }) findAll(hashes, i + 1, collector) else findAll(hashes, i + 1, collector + i)
     }
 
-    return findAll().getOrNull(lastIndex - 1)
+    return findAll((0..999).map { hashing(it) }.toTypedArray()).getOrNull(lastIndex - 1)
 }
