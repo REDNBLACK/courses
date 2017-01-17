@@ -1,7 +1,6 @@
 package day15
 
-import toHex
-import toMD5
+import parseInput
 
 /**
 --- Day 15: Timing is Everything ---
@@ -28,43 +27,56 @@ If, however, you wait until time=5 to push the button, then when the capsule rea
 
 However, your situation has more than two discs; you've noted their positions in your puzzle input. What is the first time you can press the button to get a capsule?
 
+--- Part Two ---
+
+After getting the first capsule (it contained a star! what great fortune!), the machine detects your success and begins to rearrange itself.
+
+When it's done, the discs are back in their original configuration as if it were time=0 again, but a new disc with 11 positions and starting at position 0 has appeared exactly one second below the previously-bottom disc.
+
+With this new disc, and counting again starting from time=0 with the configuration in your puzzle input, what is the first time you can press the button to get another capsule?
+
  */
 
 fun main(args: Array<String>) {
-    val hash1 = fun (salt: String): (Int) -> (String) = { (salt + it).toMD5().toHex() }
+    val test = """Disc #1 has 5 positions; at time=0, it is at position 4.
+Disc #2 has 2 positions; at time=0, it is at position 1.
+"""
+    val input = parseInput("day15-input.txt")
 
-    println(findLast(hash1("abc")) == 22728)
-    println(findLast(hash1("jlmsuwbz")))
+    val func1 = ::parseDiscs
+    println(getTiming(test, func1))
+    println(getTiming(input, func1))
 
-    val hash2 = fun (salt: String): (Int) -> (String) = { it ->
-        (0..2015).fold((salt + it).toMD5().toHex().toLowerCase(), { result, i ->
-            result.toMD5().toHex().toLowerCase()
-        })
+    val func2 = { input: String ->
+        val discs = parseDiscs(input)
+        discs.plus(Disc(discs.size + 1, 11, 0))
     }
-
-    println(findLast(hash2("abc")) == 22551)
-    println(findLast(hash2("jlmsuwbz")))
+    println(getTiming(test, func2))
+    println(getTiming(input, func2))
 }
 
-fun findLast(hashing: (Int) -> String, lastIndex: Int = 64): Int? {
-    fun String.findRepeatingChar(times: Int) = (0..length - times)
-            .map { i -> substring(i, i + times) }
-            .find { it.groupBy { it }.size == 1 }
-            ?.get(0)
+data class Disc(val id: Int, val posCount: Int, val startPos: Int)
 
+fun getTiming(input: String, parseFunc: (String) -> List<Disc>): Int {
+    tailrec fun loop(time: Int, discs: List<Disc>): Int {
+        if (discs.none { d -> (d.startPos + d.id + time) % d.posCount != 0 }) return time
 
-    val hashes = (0..999).map { hashing(it) }.toMutableList()
-
-    tailrec fun findAll(i: Int = 0, collector: List<Int> = listOf()): List<Int> {
-        if (collector.size == lastIndex) return collector
-
-        val current = hashes[i % 1000].findRepeatingChar(3).toString().repeat(5)
-        hashes[i % 1000] = hashing(i + 1000)
-
-        if (hashes.none { it.contains(current) }) return findAll(i + 1, collector)
-
-        return findAll(i + 1, collector + i)
+        return loop(time + 1, discs)
     }
 
-    return findAll().getOrNull(lastIndex - 1)
+    return loop(1, parseFunc(input))
+}
+
+fun parseDiscs(input: String): List<Disc> {
+    return input.split("\n")
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+            .map { s ->
+                val (id, posCount, _skip, startPos) = Regex("""(\d+)""")
+                        .findAll(s)
+                        .map { it.value }
+                        .toList()
+
+                Disc(id = id.toInt(), posCount = posCount.toInt(), startPos = startPos.toInt())
+            }
 }

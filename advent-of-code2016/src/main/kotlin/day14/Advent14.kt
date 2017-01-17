@@ -1,9 +1,7 @@
 package day14
 
-import day12.Operation.Type.*
 import toHex
 import toMD5
-import java.util.*
 
 /**
 --- Day 14: One-Time Pad ---
