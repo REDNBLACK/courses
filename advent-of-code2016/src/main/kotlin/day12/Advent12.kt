@@ -38,34 +38,19 @@ After executing the assembunny code in your puzzle input, what value is left in 
 
 fun main(args: Array<String>) {
     val test = """cpy 41 a
-inc a
-inc a
-dec a
-jnz a 2
-dec a
-"""
-
-    println(executeOperations(test))
-
+                 |inc a
+                 |inc a
+                 |dec a
+                 |jnz a 2
+                 |dec a""".trimMargin()
     val input = parseInput("day12-input.txt")
+
+    println(executeOperations(test) == mapOf("a" to 42))
     println(executeOperations(input))
 }
 
 data class Operation(val type: Operation.Type, val register: String, val value: String) {
-    enum class Type {
-        CPY, INC, DEC, JNZ;
-    }
-
-    companion object {
-        fun fromString(str: String): Operation {
-            val args = str.split(" ")
-            val type = Type.valueOf(args[0].toUpperCase())
-            val register = if (type == CPY) args[2] else args[1]
-            val value = if (type == CPY) args[1] else args.getOrElse(2, { "1" })
-
-            return Operation(type, register, value)
-        }
-    }
+    enum class Type { CPY, INC, DEC, JNZ }
 }
 
 fun executeOperations(input: String): Map<String, Int> {
@@ -77,10 +62,9 @@ fun executeOperations(input: String): Map<String, Int> {
     }
 
     var index = 0
-    while (true) {
-        if (index >= operations.size) break
-
+    while (index < operations.size) {
         val operation = operations[index]
+
         when (operation.type) {
             CPY -> {
                 registers.put(operation.register, getRegisterValue(operation.value))
@@ -104,9 +88,14 @@ fun executeOperations(input: String): Map<String, Int> {
     return registers
 }
 
-fun parseOperations(input: String): List<Operation> {
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map { Operation.fromString(it) }
-}
+private fun parseOperations(input: String) = input.split("\n")
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+        .map {
+            val args = it.split(" ")
+            val type = Operation.Type.valueOf(args[0].toUpperCase())
+            val register = if (type == CPY) args[2] else args[1]
+            val value = if (type == CPY) args[1] else args.getOrElse(2, { "1" })
+
+            Operation(type, register, value)
+        }

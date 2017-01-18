@@ -36,21 +36,18 @@ How many IPs in your puzzle input support SSL?
 
 fun main(args: Array<String>) {
     val test = """abba[mnop]qrst
-abcd[bddb]xyyx
-aaaa[qwer]tyui
-ioxxoj[asdfgh]zxcvbn
-"""
+                 |abcd[bddb]xyyx
+                 |aaaa[qwer]tyui
+                 |ioxxoj[asdfgh]zxcvbn""".trimMargin()
     val test2 = """aba[bab]xyz
-xyx[xyx]xyx
-aaa[kek]eke
-zazbz[bzb]cdb"""
-
+                  |xyx[xyx]xyx
+                  |aaa[kek]eke
+                  |zazbz[bzb]cdb""".trimMargin()
     val input = parseInput("day7-input.txt")
 
-    println(findSupportingTLS(test))
+    println(findSupportingTLS(test).size == 2)
     println(findSupportingTLS(input).size)
-
-    println(finsSupportingSSL(test2))
+    println(finsSupportingSSL(test2).size == 3)
     println(finsSupportingSSL(input).size)
 }
 
@@ -72,26 +69,22 @@ data class IP(val sequences: List<String>, val hypernet: List<String>) {
 
         return first.any { it in second }
     }
-
-    companion object {
-        val pattern = """\[([^\]]+)\]""".toRegex()
-
-        fun fromString(str: String): IP {
-            val hypernets = pattern.findAll(str).map { it.groupValues[1] }.toList()
-            val sequences = pattern.split(str)
-
-            return IP(sequences, hypernets)
-        }
-    }
 }
 
 fun findSupportingTLS(input: String) = parseIP(input).filter(IP::supportsTLS)
 
 fun finsSupportingSSL(input: String) = parseIP(input).filter(IP::supportsSSL)
 
-fun parseIP(input: String): List<IP> {
+private fun parseIP(input: String): List<IP> {
+    val pattern = Regex("""\[([^\]]+)\]""")
+
     return input.split("\n")
             .map(String::trim)
             .filter(String::isNotEmpty)
-            .map { IP.fromString(it) }
+            .map {
+                val hypernets = pattern.findAll(it).map { it.groupValues[1] }.toList()
+                val sequences = pattern.split(it)
+
+                IP(sequences, hypernets)
+            }
 }

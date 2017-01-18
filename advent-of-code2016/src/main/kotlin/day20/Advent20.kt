@@ -27,14 +27,12 @@ How many IPs are allowed by the blacklist?
 
 fun main(args: Array<String>) {
     val test = """5-8
-0-2
-4-7"""
-
-    println(findLowestIP(test))
-    println(countWhitelisted(test))
-
+                 |0-2
+                 |4-7""".trimMargin()
     val input = parseInput("day20-input.txt")
 
+    println(findLowestIP(test) == 3L)
+    println(countWhitelisted(test))
     println(findLowestIP(input))
     println(countWhitelisted(input))
 }
@@ -55,13 +53,11 @@ fun countWhitelisted(input: String): Long {
             .count()
 }
 
-fun parseRanges(input: String): List<LongRange> {
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map { it ->
-                val (min, max) = it.split("-")
+private fun parseRanges(input: String) = input.split("\n")
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+        .map { it ->
+            val (min, max) = it.split("-")
 
-                min.toLong()..max.toLong()
-            }
-}
+            min.toLong()..max.toLong()
+        }

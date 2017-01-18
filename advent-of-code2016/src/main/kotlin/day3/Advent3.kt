@@ -18,10 +18,10 @@ In your puzzle input, how many of the listed triangles are possible?
  */
 
 fun main(args: Array<String>) {
-    println(findPossible("5 10 25").size)
-
+    val test = "5 10 25"
     val input = parseInput("day3-input.txt")
 
+    println(findPossible(test).isEmpty())
     println(findPossible(input).size)
 }
 
@@ -31,16 +31,14 @@ data class Triangle(val x: Int, val y: Int, val z: Int) {
 
 fun findPossible(input: String) = parseTriangles(input).filter { it.isPossible() }
 
-fun parseTriangles(input: String): List<Triangle> {
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map {
-                val (x, y, z) = it.split(" ")
-                        .map(String::trim)
-                        .filter(String::isNotEmpty)
-                        .map(String::toInt)
+private fun parseTriangles(input: String) = input.split("\n")
+        .map(String::trim)
+        .filter(String::isNotEmpty)
+        .map {
+            val (x, y, z) = it.split(" ")
+                    .map(String::trim)
+                    .filter(String::isNotEmpty)
+                    .map(String::toInt)
 
-                Triangle(x, y, z)
-            }
-}
+            Triangle(x, y, z)
+        }

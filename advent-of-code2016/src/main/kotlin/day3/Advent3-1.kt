@@ -23,21 +23,21 @@ In your puzzle input, and instead reading by columns, how many of the listed tri
  */
 
 fun main(args: Array<String>) {
-    println(findPossibleVertical("""101 301 501
-102 302 502
-103 303 503
-201 401 601
-202 402 602
-203 403 603""").size)
-
+    val test = """101 301 501
+                 |102 302 502
+                 |103 303 503
+                 |201 401 601
+                 |202 402 602
+                 |203 403 603""".trimMargin()
     val input = parseInput("day3-input.txt")
 
+    println(findPossibleVertical(test).size == 6)
     println(findPossibleVertical(input).size)
 }
 
 fun findPossibleVertical(input: String) = parseTrianglesVertical(input).filter { it.isPossible() }
 
-fun parseTrianglesVertical(input: String): List<Triangle> {
+private fun parseTrianglesVertical(input: String): List<Triangle> {
     val lines = input.split("\n")
             .map(String::trim)
             .filter(String::isNotEmpty)

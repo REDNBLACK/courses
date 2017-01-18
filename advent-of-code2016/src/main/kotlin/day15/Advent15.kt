@@ -39,19 +39,18 @@ With this new disc, and counting again starting from time=0 with the configurati
 
 fun main(args: Array<String>) {
     val test = """Disc #1 has 5 positions; at time=0, it is at position 4.
-Disc #2 has 2 positions; at time=0, it is at position 1.
-"""
+                 |Disc #2 has 2 positions; at time=0, it is at position 1.""".trimMargin()
     val input = parseInput("day15-input.txt")
 
     val func1 = ::parseDiscs
-    println(getTiming(test, func1))
+    println(getTiming(test, func1) == 5)
     println(getTiming(input, func1))
 
     val func2 = { input: String ->
         val discs = parseDiscs(input)
         discs.plus(Disc(discs.size + 1, 11, 0))
     }
-    println(getTiming(test, func2))
+    println(getTiming(test, func2) == 85)
     println(getTiming(input, func2))
 }
 
@@ -67,7 +66,7 @@ fun getTiming(input: String, parseFunc: (String) -> List<Disc>): Int {
     return loop(1, parseFunc(input))
 }
 
-fun parseDiscs(input: String): List<Disc> {
+private fun parseDiscs(input: String): List<Disc> {
     return input.split("\n")
             .map(String::trim)
             .filter(String::isNotEmpty)

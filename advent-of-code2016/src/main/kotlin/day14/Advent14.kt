@@ -1,5 +1,6 @@
 package day14
 
+import chunk
 import toHex
 import toMD5
 
@@ -69,8 +70,7 @@ fun main(args: Array<String>) {
 }
 
 fun findLast(hashing: (Int) -> String, lastIndex: Int = 64): Int? {
-    fun String.findRepeatingChar(times: Int) = (0..length - times)
-            .map { i -> substring(i, i + times) }
+    fun String.findRepeatingChar(times: Int) = chunk(times)
             .find { it.groupBy { it }.size == 1 }
             ?.get(0)
 
@@ -80,7 +80,8 @@ fun findLast(hashing: (Int) -> String, lastIndex: Int = 64): Int? {
         val current = hashes[i % 1000].findRepeatingChar(3).toString().repeat(5)
         hashes[i % 1000] = hashing(i + 1000)
 
-        return if (hashes.none { it.contains(current) }) findAll(hashes, i + 1, collector) else findAll(hashes, i + 1, collector + i)
+        return if (hashes.none { it.contains(current) }) findAll(hashes, i + 1, collector)
+        else findAll(hashes, i + 1, collector + i)
     }
 
     return findAll((0..999).map { hashing(it) }.toTypedArray()).getOrNull(lastIndex - 1)

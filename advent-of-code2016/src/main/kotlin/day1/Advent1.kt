@@ -31,7 +31,6 @@ fun main(args: Array<String>) {
     println(findDestination("R5, L5, R5, R3").countBlocks() == 12)
 
     val input = parseInput("day1-input.txt")
-
     println(findDestination(input).countBlocks())
 }
 
@@ -60,13 +59,11 @@ fun findDestination(input: String): State {
     }
 }
 
-fun parseMoves(input: String): List<Move> {
-    return input.split(",")
-            .map(String::trim)
-            .map { it ->
-                val turn = Turn.valueOf(it[0].toString())
-                val steps = it[1].toString().toInt()
+private fun parseMoves(input: String) = input.split(",")
+        .map(String::trim)
+        .map { it ->
+            val turn = Turn.valueOf(it[0].toString())
+            val steps = it[1].toString().toInt()
 
-                Move(turn, steps)
-            }
-}
+            Move(turn, steps)
+        }

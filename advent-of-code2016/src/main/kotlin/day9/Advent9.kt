@@ -27,6 +27,22 @@ A(2x2)BCD(2x2)EFG doubles the BC and EF, becoming ABCBCDEFEFG for a decompressed
 X(8x2)(3x3)ABCY becomes X(3x3)ABC(3x3)ABCY (for a decompressed length of 18), because the decompressed data from the (8x2) marker (the (3x3)ABC) is skipped and not processed further.
 What is the decompressed length of the file (your puzzle input)? Don't count whitespace.
 
+--- Part Two ---
+
+Apparently, the file actually uses version two of the format.
+
+In version two, the only difference is that markers within decompressed data are decompressed. This, the documentation explains, provides much more substantial compression capabilities, allowing many-gigabyte files to be stored in only a few kilobytes.
+
+For example:
+
+(3x3)XYZ still becomes XYZXYZXYZ, as the decompressed section contains no markers.
+X(8x2)(3x3)ABCY becomes XABCABCABCABCABCABCY, because the decompressed data from the (8x2) marker is then further decompressed, thus triggering the (3x3) marker twice for a total of six ABC sequences.
+(27x12)(20x12)(13x14)(7x10)(1x12)A decompresses into a string of A repeated 241920 times.
+(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN becomes 445 characters long.
+Unfortunately, the computer you brought probably doesn't have enough memory to actually decompress the file; you'll have to come up with another way to get its decompressed length.
+
+What is the decompressed length of the file using this improved format?
+
  */
 
 fun main(args: Array<String>) {
@@ -37,31 +53,26 @@ fun main(args: Array<String>) {
     println(calculateLength("X(8x2)(3x3)ABCY") == 18L)
 
     val input = parseInput("day9-input.txt").trim()
-
     println(calculateLength(input))
     println(calculateLength(input, true))
 }
 
-data class Operation(val pos: Int, val index: Int, val offset: Int, val multiplier: Int) {
-    companion object {
-        val regex = """\((\d+)x(\d+)\)""".toRegex()
+data class Operation(val pos: Int, val i: Int, val offset: Int, val factor: Int)
 
-        fun fromString(str: String): Operation? {
-            val g = regex.find(str)?.groupValues ?: return null
-            val pos = str.indexOf(g[0])
+fun calculateLength(s: String, part2: Boolean = false): Long {
+    val o = parseOperation(s) ?: return s.length.toLong()
+    val calculated = if (part2) calculateLength(s.substring(o.i, o.i + o.offset), part2) else o.offset.toLong()
 
-            return Operation(pos = pos, index = pos + g[0].length, offset = g[1].toInt(), multiplier = g[2].toInt())
-        }
-    }
+    return s.substring(1..o.pos).length.toLong() +
+            calculated * o.factor +
+            calculateLength(s.substring(o.i + o.offset, s.length), part2)
 }
 
-fun calculateLength(s: String, second: Boolean = false): Long {
-    val o = Operation.fromString(s) ?: return s.length.toLong()
-    val calculated = if (second) calculateLength(s.substring(o.index, o.index + o.offset), second) else o.offset.toLong()
+private fun parseOperation(input: String): Operation? {
+    val pattern = Regex("""\((\d+)x(\d+)\)""")
 
-    return listOf(
-            s.substring(1..o.pos).length.toLong(),
-            calculated * o.multiplier,
-            calculateLength(s.substring(o.index + o.offset, s.length), second)
-    ).sum()
+    val (x, offset, multiplier) = pattern.find(input)?.groupValues ?: return null
+    val pos = input.indexOf(x)
+
+    return Operation(pos = pos, i = pos + x.length, offset = offset.toInt(), factor = multiplier.toInt())
 }

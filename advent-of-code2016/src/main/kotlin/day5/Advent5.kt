@@ -51,6 +51,9 @@ fun main(args: Array<String>) {
         array
     }
 
+    println(findPassword("abc", algorithm1, 8) == "18f47a30")
+    println(findPassword("cxdnnyjw", algorithm1, 8))
+
     val algorithm2 = { hash: String, array: CharArray ->
         val prefix = "0".repeat(5)
         if (hash.startsWith(prefix)) {
@@ -62,9 +65,6 @@ fun main(args: Array<String>) {
 
         array
     }
-
-    println(findPassword("abc", algorithm1, 8) == "18f47a30")
-    println(findPassword("cxdnnyjw", algorithm1, 8))
 
     println(findPassword("abc", algorithm2, 8) == "05ace8e3")
     println(findPassword("cxdnnyjw", algorithm2, 8))

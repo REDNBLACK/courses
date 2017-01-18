@@ -53,9 +53,9 @@ Using the same instructions in your puzzle input, what is the correct bathroom c
 
 fun main(args: Array<String>) {
     val test = """ULL
-RRDDD
-LURDL
-UUUUD"""
+                 |RRDDD
+                 |LURDL
+                 |UUUUD""".trimMargin()
     val input = parseInput("day2-input.txt")
 
     val startPos1 = Pos(1, 1)
@@ -106,8 +106,6 @@ fun findCode(input: String, matrix: Array<IntArray>, startPos: Pos): String {
             .joinToString("")
 }
 
-fun parseMoves(input: String): List<List<Move>> {
-    return input.split("\n")
-            .map { it.filter(Char::isLetter).map { s -> Move.valueOf(s.toString()) } }
-            .filter { it.isNotEmpty() }
-}
+private fun parseMoves(input: String) = input.split("\n")
+        .map { it.filter(Char::isLetter).map { s -> Move.valueOf(s.toString()) } }
+        .filter { it.isNotEmpty() }

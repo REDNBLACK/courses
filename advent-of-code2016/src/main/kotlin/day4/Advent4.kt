@@ -36,19 +36,15 @@ What is the sector ID of the room where North Pole objects are stored?
 
 fun main(args: Array<String>) {
     val test = """aaaaa-bbb-z-y-x-123[abxyz]
-a-b-c-d-e-f-g-h-987[abcde]
-not-a-real-room-404[oarel]
-totally-real-room-200[decoy]
-"""
-
-    println(findReal(test).sumBy(Room::sectorId) == 1514)
-
+                 |a-b-c-d-e-f-g-h-987[abcde]
+                 |not-a-real-room-404[oarel]
+                 |totally-real-room-200[decoy]
+                """.trimMargin()
     val input = parseInput("day4-input.txt")
-    println(findReal(input).sumBy(Room::sectorId))
 
-    println("qzmt-zixmtkozy-ivhz".decrypt(343) == "very encrypted name")
-
-    println(parseRooms(input).filter { it.name.decrypt(it.sectorId).contains("northpole") })
+    println(findRealRoom(test).sumBy(Room::sectorId) == 1514)
+    println(findRealRoom(input).sumBy(Room::sectorId))
+    println(findRoomContainsDecryptedMessage(input, "northpole"))
 }
 
 data class Room(val name: String, val sectorId: Int, val checksum: String) {
@@ -59,35 +55,35 @@ data class Room(val name: String, val sectorId: Int, val checksum: String) {
             .take(5)
             .map { it.second }
             .joinToString("") == this.checksum
+}
 
-    companion object {
-        val pattern = """(.+)-(\d+)\[(.+)\]""".toRegex()
+fun findRealRoom(input: String) = parseRooms(input).filter(Room::isValid)
 
-        fun fromString(input: String): Room {
-            val (name, sectorId, checksum) = pattern.matchEntire(input)?.groupValues!!.drop(1)
+fun findRoomContainsDecryptedMessage(input: String, message: String): List<Room> {
+    fun Char.shift(times: Int): Char {
+        val alphabet = ('a'..'z').toList()
 
-            return Room(name, sectorId.toInt(), checksum)
+        return when (this) {
+            '-' -> ' '
+            in alphabet -> alphabet[(alphabet.indexOf(this) + times) % alphabet.size]
+            else -> this
         }
     }
+
+    fun String.decrypt(times: Int) = toCharArray().map { it.shift(times) }.joinToString("")
+
+    return parseRooms(input).filter { it.name.decrypt(it.sectorId).contains(message) }
 }
 
-fun String.decrypt(times: Int) = toCharArray().map { it.shift(times) }.joinToString("")
+private fun parseRooms(input: String): List<Room> {
+    val pattern = Regex("""(.+)-(\d+)\[(.+)\]""")
 
-fun Char.shift(times: Int): Char {
-    val alphabet = ('a'..'z').toList()
-
-    return when (this) {
-        '-' -> ' '
-        in alphabet -> alphabet[(alphabet.indexOf(this) + times) % alphabet.size]
-        else -> this
-    }
-}
-
-fun findReal(input: String) = parseRooms(input).filter(Room::isValid)
-
-fun parseRooms(input: String): List<Room> {
     return input.split("\n")
             .map(String::trim)
             .filter(String::isNotEmpty)
-            .map { Room.fromString(it) }
+            .map {
+                val (name, sectorId, checksum) = pattern.matchEntire(it)?.groupValues!!.drop(1)
+
+                Room(name, sectorId.toInt(), checksum)
+            }
 }
