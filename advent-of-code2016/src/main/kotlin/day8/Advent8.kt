@@ -42,6 +42,12 @@ As you can see, this display technology is extremely powerful, and will soon dom
 
 There seems to be an intermediate check of the voltage used by the display: after you swipe your card, if the screen did work, how many pixels should be lit?
 
+--- Part Two ---
+
+You notice that the screen is only capable of displaying capital letters; in the font it uses, each letter is 5 pixels wide and 6 tall.
+
+After you swipe your card, what code is the screen trying to display?
+
  */
 
 fun main(args: Array<String>) {
@@ -50,13 +56,13 @@ fun main(args: Array<String>) {
                  |rotate row y=0 by 4
                  |rotate column x=1 by 1""".trimMargin()
     val resultMatrix1 = execute(test, array2d(3, 7) { false })
-    resultMatrix1.drawMatrix()
     println(resultMatrix1.countFilled() == 6)
+    resultMatrix1.drawMatrix()
 
     val input = parseInput("day8-input.txt")
     val resultMatrix2 = execute(input, array2d(6, 50) { false })
-    resultMatrix2.drawMatrix()
     println(resultMatrix2.countFilled())
+    resultMatrix2.drawMatrix()
 }
 
 data class Operation(val type: Operation.Type, val payload1: Int, val payload2: Int) {
@@ -93,26 +99,20 @@ private fun Array<Array<Boolean>>.drawMatrix() {
 
 private fun Array<Array<Boolean>>.countFilled() = sumBy { it.sumBy { if (it) 1 else 0 } }
 
-private fun <T> Array<Array<T>>.shiftDown(i: Int) {
-    val size = this.size - 1
-    val temp = this[size][i]
-
-    for (k in size downTo 1) {
-        this[k][i] = this[k - 1][i]
+private fun <T> Array<Array<T>>.shiftDown(x: Int) {
+    val height = size - 1
+    val bottom = this[height][x]
+    for (y in height downTo 0) {
+        this[y][x] = if (y > 0) this[y - 1][x] else bottom
     }
-
-    this[0][1] = temp
 }
 
-private fun <T> Array<Array<T>>.shiftRight(i: Int) {
-    val size = this[i].size - 1
-    val temp = this[i][size]
-
-    for (k in size downTo 1) {
-        this[i][k] = this[i][k - 1]
+private fun <T> Array<Array<T>>.shiftRight(y: Int) {
+    val width = this[0].size - 1
+    val right = this[y][width]
+    for (x in width downTo 0) {
+        this[y][x] = if (x > 0) this[y][x - 1] else right
     }
-
-    this[i][0] = temp
 }
 
 private fun parseOperations(input: String) = input.split("\n")
