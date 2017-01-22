@@ -55,13 +55,17 @@ fun main(args: Array<String>) {
     )
 
     println(test.filter { findFloor(it.key) == it.value }.count() == test.size)
-    println(findFloor(parseInput("day1-input.txt")))
+
+    val input = parseInput("day1-input.txt")
+    println(findFloor(input))
+    println(findFloor(input, true))
 }
 
-fun findFloor(input: String): Int {
+fun findFloor(input: String, second: Boolean = false): Int {
     val tokens = hashMapOf('(' to 1, ')' to -1)
     tailrec fun loop(pos: Int, counter: Int): Int {
         if (pos == input.length) return counter
+        if (second && counter == -1) return pos
 
         return loop(pos + 1, counter + tokens.getOrDefault(input[pos], 0))
     }
