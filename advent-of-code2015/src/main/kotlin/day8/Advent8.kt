@@ -47,60 +47,28 @@ fun main(args: Array<String>) {
             |"\x27"
             """.trimMargin()
 
-    println(calcSizeDiff(test, String::decode) == 12)
-    println(calcSizeDiff2(test) == 19)
-
-    println(parseData(test).map { it.length to it.encode().length })
+    println(calcSizeDiff(test) == 12)
+    println(calcSizeDiff(test, true) == 19)
 
     val input = parseInput("day8-input.txt")
-    println(calcSizeDiff(input, String::decode))
-    println(calcSizeDiff2(input))
+    println(calcSizeDiff(input))
+    println(calcSizeDiff(input, true))
 }
 
-fun calcSizeDiff(input: String, algorithm: (String) -> String) = parseData(input)
-        .map { it.length to algorithm(it).length }
-        .sumBy { it.first - it.second }
+fun calcSizeDiff(input: String, second: Boolean = false): Int {
+    val lines = parseData(input)
 
-fun calcSizeDiff2(input: String) = parseData(input)
-        .map { it.length to it.encode().length }
-        .sumBy { it.second - it.first }
+    val lengthTotal = lines.sumBy { it.length }
+    val decodedTotal = lines.sumBy(String::decodedCount)
+    val encodedTotal = lines.sumBy(String::encodedCount)
 
-private fun String.decode() = replace("""\\""", "b")
-        .replace("""\"""", "a")
-        .let {
-            var result = it
+    return if (second) encodedTotal - lengthTotal else lengthTotal - decodedTotal
+}
 
-            Regex("""\\x.{2}""").findAll(it)
-                    .map { it.groupValues }
-                    .toList()
-                    .flatMap { it }
-                    .forEach {
-                        result = result.replace(
-                                it,
-                                Integer.parseInt(it.replace("\\x", ""), 16).toChar().toString()
-                        )
-                    }
-
-            result
-        }
-        .let { it.substring(1).substring(0, it.length - 2) }
-
-private fun String.encode() = replace("""\"""", """\\\"""")
-        .let {
-            var result = it
-
-            Regex("""\\x.{2}""").findAll(it)
-                    .map { it.groupValues }
-                    .toList()
-                    .flatMap { it }
-                    .forEach {
-                        result = result.replace(it, "\\" + it)
-                    }
-
-            result
-        }
-        .let { it.substring(1).substring(0, it.length - 2) }
-        .let { """"\"""" + it + """\""""" }
+fun String.encodedCount() = 2 + sumBy { if (it == '\\' || it == '\"') 2 else 1 }
+fun String.decodedCount() = trim('"').replace("\\\"", "r")
+        .replace("\\\\", "r")
+        .replace(Regex("\\\\x[a-f0-9]{2}"), "r").length
 
 private fun parseData(input: String) = input.trim()
         .split("\n")
