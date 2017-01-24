@@ -31,6 +31,11 @@ fun <T : Any> List<T>.permutations() : Sequence<List<T>> = if (size == 1) sequen
 
     generateSequence { nextPermutation() }
 }
+fun <T> List<T>.split(size: Int) = (0..this.size - size)
+        .fold(mutableListOf<List<T>>(), { result, i ->
+            result.add(subList(i, i + size))
+            result
+        })
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int) -> INNER): Array<Array<INNER>>
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
