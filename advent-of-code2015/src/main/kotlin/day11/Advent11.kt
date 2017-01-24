@@ -28,35 +28,38 @@ Given Santa's current password (your puzzle input), what should his next passwor
  */
 
 fun main(args: Array<String>) {
-    println(generateNewPassword("abcdefgh"))
+    println(generateNewPassword("abcdefgh") == "abcdffaa")
+    println(generateNewPassword("ghijklmn") == "ghjaabcc")
+
+    println(generateNewPassword("vzbxkghb"))
+    println(generateNewPassword("vzbxxyzz"))
 }
 
 fun generateNewPassword(oldPass: String): String {
     val alphabet = ('a'..'z').toList()
-    val mustNotContain = listOf('i', 'o', 'l')
-    val mustContainTriple = alphabet.split(3).map { it.joinToString("") }
-    val mustContainPair = alphabet.map { it.toString().repeat(2) }
 
-    fun String.isGoodEnough() = mustNotContain.count { it in this } == 0
-            && mustContainTriple.count { it in this } > 0
-            && mustContainPair.count { it in this } >= 2
+    fun String.isGoodEnough() = listOf('i', 'o', 'l').count { it in this } == 0
+            && alphabet.split(3).map { it.joinToString("") }.count { it in this } > 0
+            && alphabet.map { it.toString().repeat(2) }.count { it in this } >= 2
 
-    fun String.incrementChars(): String {
-        fun Char.increment() = if (this == 'z') 'a' else this + 1
+    fun String.incrementWithWrap(): String {
+        fun Char.incrementWithWrap() = if (this == 'z') 'a' to true else this + 1 to false
 
         val charArray = toCharArray()
         for (i in this.length - 1 downTo 0) {
-            charArray[i] = charArray[i].increment()
+            val (newValue, isWrapped) = charArray[i].incrementWithWrap()
+            charArray[i] = newValue
+            if (!isWrapped) break
         }
 
         return charArray.joinToString("")
     }
 
-    var pass = oldPass
-    while (true) {
-        pass = pass.incrementChars()
-        if (pass.isGoodEnough()) break
+    tailrec fun loop(pass: String): String {
+        val newPass = pass.incrementWithWrap()
+        if (newPass.isGoodEnough()) return newPass
+        return loop(newPass)
     }
 
-    return pass
+    return loop(oldPass)
 }
