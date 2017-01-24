@@ -1,8 +1,7 @@
 package day9
 
-import array2d
-import day6.Operation.Type.*
 import parseInput
+import permutations
 
 /**
 --- Day 9: All in a Single Night ---
@@ -28,6 +27,16 @@ The shortest of these is London -> Dublin -> Belfast = 605, and so the answer is
 
 What is the distance of the shortest route?
 
+--- Part Two ---
+
+The next year, just to show off, Santa decides to take the route with the longest distance instead.
+
+He can still start and end at any two (different) locations he wants, and he still must visit each location exactly once.
+
+For example, given the distances above, the longest route would be 982 via (for example) Dublin -> London -> Belfast.
+
+What is the distance of the longest route?
+
  */
 
 fun main(args: Array<String>) {
@@ -37,31 +46,32 @@ fun main(args: Array<String>) {
             |Dublin to Belfast = 141
             """.trimMargin()
 
-    println(findShortestDistance(test))
+    println(findDistance(test, { it.min() }))
 
     val input = parseInput("day9-input.txt")
-    println(findShortestDistance(input))
+    println(findDistance(input, { it.min() }))
+    println(findDistance(input, { it.max() }))
 }
 
-fun findShortestDistance(input: String): Chain? {
+fun findDistance(input: String, mapper: (Set<Int>) -> Int?): Int? {
     val travels = parseTravels(input)
 
     return travels
-            .fold(listOf<Chain>(), { chains, travel ->
-                tailrec fun loop(chain: Chain): Chain {
-                    val found = travels.find { travel.to == it.from && it.to !in chain.cities } ?: return chain
-
-                    return loop(chain.copy(chain.cities + found.to, chain.totalDistance + found.distance))
-                }
-
-                chains.plus(loop(Chain(listOf(travel.from, travel.to), travel.distance.toLong())))
+            .flatMap(Travel::toList)
+            .distinct()
+            .permutations()
+            .fold(setOf<Int>(), { distances, permute ->
+                distances + permute.zip(permute.subList(1, permute.size))
+                        .map { p -> travels.find { it.from == p.first && it.to == p.second } }
+                        .filterNotNull()
+                        .sumBy { it.distance }
             })
-            .minBy { it.totalDistance }
+            .let(mapper)
 }
 
-
-data class Chain(val cities: List<String>, val totalDistance: Long)
-data class Travel(val from: String, val to: String, val distance: Int)
+data class Travel(val from: String, val to: String, val distance: Int) {
+    fun toList() = listOf(from, to)
+}
 
 private fun parseTravels(input: String) = input
         .split("\n")
