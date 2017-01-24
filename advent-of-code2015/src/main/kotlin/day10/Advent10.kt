@@ -1,7 +1,5 @@
 package day10
 
-import parseInput
-
 /**
 --- Day 10: Elves Look, Elves Say ---
 
@@ -27,19 +25,31 @@ fun main(args: Array<String>) {
     println("1211".transform() == "111221")
     println("111221".transform() == "312211")
 
-    println("1113222113".transform(40).length)
-    println("1113222113".transform(50).length)
+    val input = "1113222113"
+    println(input.transform(40).length)
+    println(input.transform(50).length)
 }
 
-fun String.transform(times: Int = 1) = (1..times).fold(this, { str, _i -> println(_i); str.transform() })
+fun String.transform(times: Int = 1) = (1..times).fold(this, { str, _i -> str.transform() })
 
 private fun String.transform(): String {
-    tailrec fun loop(curChar: Char, pos: Int, acc: List<List<Char>> = listOf(listOf())): String {
-        if (pos == this.length) return acc.map { "${it.size}${it.last()}" }.joinToString("")
-        if (this[pos] != curChar) return loop(this[pos], pos + 1, acc.plusElement(listOf(this[pos])))
+    val result = StringBuilder()
 
-        return loop(curChar, pos + 1, acc.subList(0, acc.size - 1).plusElement(acc.last().plusElement(this[pos])))
+    var index = 0
+    while (index < length) {
+        var count = 1
+        val current = this[index]
+
+        while (index + 1 < length && this[index + 1] == current) {
+            ++index
+            ++count
+        }
+
+        result.append(count)
+        result.append(current)
+
+        index++
     }
 
-    return loop(this[0], 0)
+    return result.toString()
 }
