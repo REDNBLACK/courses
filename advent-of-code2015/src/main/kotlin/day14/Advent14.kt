@@ -2,6 +2,10 @@ package day14
 
 import parseInput
 import split
+import java.lang.Math.floor
+import java.lang.Math.min
+import java.util.*
+import java.util.function.BiFunction
 
 /**
 --- Day 14: Reindeer Olympics ---
@@ -41,38 +45,34 @@ fun main(args: Array<String>) {
                """.trimMargin()
     val input = parseInput("day14-input.txt")
 
-    println(findWinner(test, { it.getTravelDistance(1000) }) == "Comet" to 1120)
-    println(findWinner(input, { it.getTravelDistance(2503) }))
+    println(findWinner(test, 1000))
+    println(findWinner(input, 2503))
 }
 
-fun findWinner(input: String, scoringSystem: (Reindeer) -> Int) = parseReindeers(input)
-        .map { it.name to scoringSystem(it) }
-        .maxBy { it.second }
+fun findWinner(input: String, totalTime: Int): Map<String, Pair<String, Int>?> {
+    val reindeers = parseReindeers(input)
 
-data class Reindeer(val name: String, val speed: Int, val flyTime: Int, val restTime: Int) {
-    fun getTravelDistance(totalTime: Int): Int {
-        var result = 0
+    tailrec fun maxPoints(counter: Int, points: HashMap<String, Int>): Pair<String, Int>? {
+        val allDistances = reindeers.map { it.getDistance(counter) }
+        val maxDistance = allDistances.maxBy { it.second }?.second
 
-        var flyCounter = flyTime
-        var restCounter = restTime
-        for (_i in 1..totalTime) {
-            if (flyCounter > 0) {
-                result += speed
-                --flyCounter
-                continue
-            }
+        allDistances.filter { it.second == maxDistance }
+                .map { it.first }
+                .forEach { points.computeIfPresent(it, { k, v -> v + 1 }) }
 
-            if (restCounter > 0) {
-                if (--restCounter == 0) {
-                    flyCounter = flyTime
-                    restCounter = restTime
-                }
-                continue
-            }
-        }
-
-        return result
+        if (counter == totalTime) return points.maxBy { it.value }?.toPair()
+        return maxPoints(counter + 1, points)
     }
+
+    return mapOf(
+            "distance" to reindeers.map { it.getDistance(totalTime) }.maxBy { it.second },
+            "points" to maxPoints(1, HashMap(reindeers.map { it.name to 0 }.toMap()))
+    )
+}
+
+data class Reindeer(val name: String, val speed: Int, val fly: Int, val rest: Int) {
+    fun total() = fly + rest
+    fun getDistance(t: Int) = (name to speed * fly * (t / total()) + speed * min(fly, t % total()))
 }
 
 private fun parseReindeers(input: String) = input
@@ -83,5 +83,5 @@ private fun parseReindeers(input: String) = input
             val name = it.split(" ", limit = 2).first()
             val (speed, flyTime, restTime) = Regex("""(\d+)""").findAll(it).map { it.groupValues[1] }.toList()
 
-            Reindeer(name = name, speed = speed.toInt(), flyTime = flyTime.toInt(), restTime = restTime.toInt())
+            Reindeer(name = name, speed = speed.toInt(), fly = flyTime.toInt(), rest = restTime.toInt())
         }
