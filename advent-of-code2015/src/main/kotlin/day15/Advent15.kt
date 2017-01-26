@@ -80,7 +80,7 @@ fun findBestCombination(input: String, maxTeaspoons: Int = 100, maxCalories: Int
         val calories = dough.last()
         val result = dough.dropLast(1).map { Math.max(it, 0) }.reduce { a, b -> a * b }
 
-        return if (maxCalories != 0 && calories > maxCalories) 0 else result
+        return if (maxCalories != 0) (if (calories == maxCalories) result else 0) else result
     }
 
     return mixtures(ingredients.size, maxTeaspoons).map { score(it, maxCalories) }.max()
