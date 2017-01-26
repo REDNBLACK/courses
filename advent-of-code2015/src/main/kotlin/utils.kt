@@ -31,6 +31,13 @@ fun <T : Any> List<T>.permutations() : Sequence<List<T>> = if (size == 1) sequen
 
     generateSequence { nextPermutation() }
 }
+fun <T : Any> List<T>.combinations(n: Int) : List<List<T>> = if (n == 0) listOf(emptyList()) else {
+    flatMapTails { subList -> subList.tail().combinations(n - 1).map { it + subList.first() } }
+}
+private fun <T> List<T>.flatMapTails(f: (List<T>) -> (List<List<T>>)): List<List<T>> = if (isEmpty()) emptyList() else {
+    f(this) + this.tail().flatMapTails(f)
+}
+fun <T> List<T>.tail(): List<T> = drop(1)
 fun <T> List<T>.split(size: Int) = (0..this.size - size)
         .fold(mutableListOf<List<T>>(), { result, i ->
             result.add(subList(i, i + size))
