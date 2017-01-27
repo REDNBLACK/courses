@@ -52,31 +52,40 @@ fun main(args: Array<String>) {
                   |NOT y -> i
                """.trimMargin()
 
-//    println(Generated().getMembers())
-
     println(generateClass(test))
     println(generateClass(parseInput("day7-input.txt")))
+
+//    println(Generated().a)
+//    println(Generated2().a)
 }
 
 fun generateClass(input: String): String {
-    return parseOperations(input)
+    val first = parseOperations(input)
             .plus("fun getMembers() = Generated::class.declaredMemberProperties.map { it.name to it.get(this) }")
             .map { " ".repeat(4) + it }
             .joinToString(
                     separator = System.lineSeparator(),
-                    prefix = "class Generated {${System.lineSeparator()}",
+                    prefix = "open class Generated {${System.lineSeparator()}",
                     postfix = "${System.lineSeparator()}}"
             )
+
+    val second = "class Generated2 : Generated() { override val b: Int by lazy { Generated().a } }"
+
+    return listOf(first, second).joinToString(System.lineSeparator().repeat(2))
 }
 
 private fun parseOperations(input: String) = input.split("\n")
         .map(String::trim)
         .filter(String::isNotEmpty)
         .map {
-            fun String.safeRename() = if (this in listOf("as", "is", "in", "if", "do")) "reserved_" + this else this
-            val template = "val %s: Int by lazy { %s }"
-            val args = Regex("""[\da-z]+""").findAll(it).map { it.groupValues[0] }.toList().map(String::safeRename)
-            val src = when {
+            val args = Regex("""[\da-z]+""")
+                    .findAll(it)
+                    .map { it.groupValues[0] }
+                    .map { if (it in listOf("as", "is", "in", "if", "do")) "reserved_" + it else it }
+                    .toList()
+            val template = "open val %s: Int by lazy { %s }"
+
+            when {
                 it.matches(Regex("""^[\d\w]+ -> \w+$""")) -> {
                     val (value, to) = args
 
@@ -109,7 +118,5 @@ private fun parseOperations(input: String) = input.split("\n")
                 }
                 else -> throw IllegalArgumentException(it)
             }
-
-            src
         }
 
