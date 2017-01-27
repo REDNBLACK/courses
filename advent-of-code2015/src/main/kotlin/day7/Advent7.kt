@@ -1,6 +1,5 @@
 package day7
 
-import day7.Operation.Type.*
 import parseInput
 
 /**
@@ -53,83 +52,64 @@ fun main(args: Array<String>) {
                   |NOT y -> i
                """.trimMargin()
 
-    executeOperations(test)
+//    println(Generated().getMembers())
 
-    val input = parseInput("day7-input.txt")
-    executeOperations(input)
+    println(generateClass(test))
+    println(generateClass(parseInput("day7-input.txt")))
 }
 
-fun executeOperations(input: String) {
-    val pipe = hashMapOf<String, Int>()
-
-    fun String.toSafeInt(): Int {
-        val n = 65536
-        return ((this.toInt() % n) + n) % n
-    }
-
-    fun getRegisterValue(data: String): Int {
-        return try { data.toSafeInt() } catch (e: NumberFormatException) { pipe.getOrDefault(data, 0) }
-    }
-
-    fun Int.not(bits: Int = 16) = 1.shl(bits) - 1 - this
-
-    for ((type, args) in parseOperations(input)) {
-        when (type) {
-            WRITE -> {
-                val (value, to) = args
-
-                pipe.put(to, getRegisterValue(value))
-            }
-            AND -> {
-                val (from1, from2, to) = args
-
-                pipe.put(to, getRegisterValue(from1).and(getRegisterValue(from2)))
-            }
-            OR -> {
-                val (from1, from2, to) = args
-
-                pipe.put(to, getRegisterValue(from1).or(getRegisterValue(from2)))
-            }
-            NOT -> {
-                val (from, to) = args
-
-                pipe.put(to, getRegisterValue(from).not())
-            }
-            LSHIFT -> {
-                val (from, times, to) = args
-
-                pipe.put(to, getRegisterValue(from).shl(times.toInt()))
-            }
-            RSHIFT -> {
-                val (from, times, to) = args
-
-                pipe.put(to, getRegisterValue(from).shr(times.toInt()))
-            }
-        }
-    }
-
-    println(pipe)
-}
-
-data class Operation(val type: Type, val args: List<String>) {
-    enum class Type { WRITE, AND, OR, NOT, LSHIFT, RSHIFT }
+fun generateClass(input: String): String {
+    return parseOperations(input)
+            .plus("fun getMembers() = Generated::class.declaredMemberProperties.map { it.name to it.get(this) }")
+            .map { " ".repeat(4) + it }
+            .joinToString(
+                    separator = System.lineSeparator(),
+                    prefix = "class Generated {${System.lineSeparator()}",
+                    postfix = "${System.lineSeparator()}}"
+            )
 }
 
 private fun parseOperations(input: String) = input.split("\n")
         .map(String::trim)
         .filter(String::isNotEmpty)
         .map {
-            val type = when {
-                it.matches(Regex("""^[\d\w]+ -> \w+$""")) -> WRITE
-                "AND" in it -> AND
-                "OR" in it -> OR
-                "NOT" in it -> NOT
-                "LSHIFT" in it -> LSHIFT
-                "RSHIFT" in it -> RSHIFT
+            fun String.safeRename() = if (this in listOf("as", "is", "in", "if", "do")) "reserved_" + this else this
+            val template = "val %s: Int by lazy { %s }"
+            val args = Regex("""[\da-z]+""").findAll(it).map { it.groupValues[0] }.toList().map(String::safeRename)
+            val src = when {
+                it.matches(Regex("""^[\d\w]+ -> \w+$""")) -> {
+                    val (value, to) = args
+
+                    template.format(to, value)
+                }
+                "AND" in it -> {
+                    val (from1, from2, to) = args
+
+                    template.format(to, "$from1 and $from2")
+                }
+                "OR" in it -> {
+                    val (from1, from2, to) = args
+
+                    template.format(to, "$from1 or $from2")
+                }
+                "NOT" in it -> {
+                    val (from, to) = args
+
+                    template.format(to, "1.shl(16) - 1 - $from")
+                }
+                "LSHIFT" in it -> {
+                    val (from, times, to) = args
+
+                    template.format(to, "$from shl $times")
+                }
+                "RSHIFT" in it -> {
+                    val (from, times, to) = args
+
+                    template.format(to, "$from shr $times")
+                }
                 else -> throw IllegalArgumentException(it)
             }
 
-            val args = Regex("""[\da-z]+""").findAll(it).map { it.groupValues[0] }.toList()
-
-            Operation(type, args)
+            src
         }
+
