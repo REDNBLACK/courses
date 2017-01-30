@@ -66,22 +66,26 @@ fun main(args: Array<String>) {
 
     println(findBestCombination(test) == 330)
     println(findBestCombination(input))
-    println(findBestCombination(input, "Me" to mapOf()))
+    println(findBestCombination(input, "Me"))
 }
 
-fun findBestCombination(input: String, append: Pair<String, Map<String, Int>>? = null): Int? {
-    val map = parseHappinessUnits(input).let { if (append != null) it.plus(append) else it }
+fun findBestCombination(input: String, append: String? = null): Int? {
+    val units = parseHappinessUnits(input)
+    val people = units.map { it.who }
+            .distinct()
+            .let { if (append != null) it.plus(append) else it }
 
-    return map.keys
-            .toList()
+    return people
             .permutations()
             .map { people ->
                 people.circularCombinations()
                         .map {
                             val (prev, current, next) = it
-                            val him = map[current]
 
-                            sequenceOf(him?.get(prev) ?: 0, him?.get(next) ?: 0)
+                            sequenceOf(
+                                    units.find { it.who == current && it.toWhom == prev }?.points ?: 0,
+                                    units.find { it.who == current && it.toWhom == next }?.points ?: 0
+                            )
                         }
                         .sumBy { it.sum() }
             }
@@ -110,6 +114,3 @@ private fun parseHappinessUnits(input: String) = input.split("\n")
 
             HappinessUnit(who = who, toWhom = toWhom, points = points.toInt().let { if (type == "lose") -it else it })
         }
-        .groupBy { it.who }
-        .map { it.key to it.value.map { it.toWhom to it.points }.toMap() }
-        .toMap()
