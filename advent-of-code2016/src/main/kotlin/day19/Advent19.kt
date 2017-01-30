@@ -24,33 +24,41 @@ Elf 3 takes Elf 5's three presents.
 So, with five Elves, the Elf that sits starting in position 3 gets all the presents.
 
 With the number of Elves given in your puzzle input, which Elf gets all the presents?
+
+--- Part Two ---
+
+Realizing the folly of their present-exchange rules, the Elves agree to instead steal presents from the Elf directly across the circle. If two Elves are across the circle, the one on the left (from the perspective of the stealer) is stolen from. The other rules remain unchanged: Elves with no presents are removed from the circle entirely, and the other elves move in slightly to keep the circle evenly spaced.
+
+For example, with five Elves (again numbered 1 to 5):
+
+The Elves sit in a circle; Elf 1 goes first:
+1
+5   2
+4 3
+Elves 3 and 4 are across the circle; Elf 3's present is stolen, being the one to the left. Elf 3 leaves the circle, and the rest of the Elves move in:
+1           1
+5   2  -->  5   2
+4 -          4
+Elf 2 steals from the Elf directly across the circle, Elf 5:
+1         1
+-   2  -->     2
+4         4
+Next is Elf 4 who, choosing between Elves 1 and 2, steals from Elf 1:
+-          2
+2  -->
+4          4
+Finally, Elf 2 steals from Elf 4:
+2
+-->  2
+-
+So, with five Elves, the Elf that sits starting in position 2 gets all the presents.
+
+With the number of Elves given in your puzzle input, which Elf now gets all the presents?
  */
 
 fun main(args: Array<String>) {
-    println(findWhoGetsAllPresents(5) == 3 to 5L)
+    println(findWhoGetsAllPresents(5) == 3)
+    println(findWhoGetsAllPresents(3005290))
 }
 
-fun findWhoGetsAllPresents(elvesCount: Int): Pair<Int, Long?> {
-    val elves = LongArray(elvesCount) { 1L }
-    val deque = ArrayDeque((0..elves.size - 1).toList())
-
-    while (deque.size >= 2) {
-        val i = deque.poll()
-        val j = deque.poll()
-
-        val currElf = elves[i]
-        val nextElf = elves[j]
-
-        if (currElf > 0 && nextElf > 0) {
-            elves[i] = currElf + nextElf
-            elves[j] = 0
-            deque.remove(j)
-        }
-
-        deque.addLast(i)
-    }
-
-    val maxPresents = elves.max()
-
-    return elves.indexOfFirst { it == maxPresents } + 1 to maxPresents
-}
+fun findWhoGetsAllPresents(elvesCount: Int) = Integer.parseInt(Integer.toBinaryString(elvesCount).substring(1) + '1', 2)
