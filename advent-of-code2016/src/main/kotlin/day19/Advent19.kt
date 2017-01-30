@@ -58,7 +58,37 @@ With the number of Elves given in your puzzle input, which Elf now gets all the 
 
 fun main(args: Array<String>) {
     println(findWhoGetsAllPresents(5) == 3)
+    println(findWhoGetsAllPresentsSecond(5))
+
     println(findWhoGetsAllPresents(3005290))
+    println(findWhoGetsAllPresentsSecond(3005290))
 }
 
-fun findWhoGetsAllPresents(elvesCount: Int) = Integer.parseInt(Integer.toBinaryString(elvesCount).substring(1) + '1', 2)
+fun findWhoGetsAllPresents(elvesCount: Int): Int {
+    val deque = (1..elvesCount).toCollection(ArrayDeque())
+
+    while (deque.size > 1) {
+        val head = deque.poll()
+        deque.addLast(head)
+        deque.poll()
+    }
+
+    return deque.first
+}
+
+fun findWhoGetsAllPresentsSecond(elvesCount: Int): Int {
+    val first = (1..elvesCount / 2 + 1).toCollection(ArrayDeque())
+    val second = (elvesCount / 2 + 1..elvesCount).toCollection(ArrayDeque())
+
+    while (true) {
+        if (second.size >= first.size) {
+            second.poll()
+            if (second.isEmpty()) return first.first - 1
+        } else {
+            first.pollLast()
+        }
+
+        first.addLast(second.poll())
+        second.addLast(first.poll())
+    }
+}
