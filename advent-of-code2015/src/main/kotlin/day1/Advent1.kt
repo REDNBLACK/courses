@@ -43,18 +43,14 @@ What is the position of the character that causes Santa to first enter the basem
  */
 
 fun main(args: Array<String>) {
-    val test = hashMapOf(
-            "(())" to 0,
-            "()()" to 0,
-            "(((" to 3,
-            "(()(()(" to 3,
-            "())" to -1,
-            "))(" to -1,
-            ")))" to -3,
-            ")())())" to -3
-    )
-
-    println(test.filter { findFloor(it.key) == it.value }.count() == test.size)
+    println(findFloor("(())") == 0)
+    println(findFloor("()()") == 0)
+    println(findFloor("(((") == 3)
+    println(findFloor("(()(()(") == 3)
+    println(findFloor("())") == -1)
+    println(findFloor("))(") == -1)
+    println(findFloor(")))") == -3)
+    println(findFloor(")())())") == -3)
 
     val input = parseInput("day1-input.txt")
     println(findFloor(input))
@@ -62,12 +58,12 @@ fun main(args: Array<String>) {
 }
 
 fun findFloor(input: String, second: Boolean = false): Int {
-    val tokens = hashMapOf('(' to 1, ')' to -1)
+    val tokens = mapOf('(' to 1, ')' to -1)
     tailrec fun loop(pos: Int, counter: Int): Int {
         if (pos == input.length) return counter
         if (second && counter == -1) return pos
 
-        return loop(pos + 1, counter + tokens.getOrDefault(input[pos], 0))
+        return loop(pos + 1, counter + (tokens[input[pos]] ?: 0))
     }
 
     return loop(0, 0)

@@ -2,6 +2,7 @@ package day17
 
 import combinations
 import parseInput
+import splitToLines
 
 /**
 --- Day 17: No Such Thing as Too Much ---
@@ -41,7 +42,7 @@ fun main(args: Array<String>) {
 }
 
 fun findCombinations(input: String, liters: Int): Map<String, Int?> {
-    val containers = parseContainers(input)
+    val containers = input.splitToLines().map(String::toInt)
 
     val ways = (1..containers.size)
             .map { i ->
@@ -53,9 +54,3 @@ fun findCombinations(input: String, liters: Int): Map<String, Int?> {
 
     return mapOf("total" to ways.sum(), "minimal" to ways.dropLast(1).min())
 }
-
-private fun parseContainers(input: String) = input
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
-        .map(String::toInt)

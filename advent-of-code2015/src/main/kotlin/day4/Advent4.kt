@@ -1,6 +1,5 @@
 package day4
 
-import parseInput
 import toHex
 import toMD5
 

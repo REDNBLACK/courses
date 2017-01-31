@@ -1,6 +1,7 @@
 package day15
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 15: Science for Hungry People ---
@@ -97,23 +98,21 @@ data class Ingredient(
     fun toList() = listOf(capacity, durability, flavor, texture, calories)
 }
 
-private fun parseIngredients(input: String) = input
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseIngredients(input: String) = input.splitToLines()
         .map {
             val name = it.split(":", limit = 2).first()
             val (capacity, durability, flavor, texture, calories) = Regex("""(-?\d+)""")
                     .findAll(it)
                     .map { it.groupValues[1] }
+                    .map(String::toInt)
                     .toList()
 
             Ingredient(
                     name = name,
-                    capacity = capacity.toInt(),
-                    durability = durability.toInt(),
-                    flavor = flavor.toInt(),
-                    texture = texture.toInt(),
-                    calories = calories.toInt()
+                    capacity = capacity,
+                    durability = durability,
+                    flavor = flavor,
+                    texture = texture,
+                    calories = calories
             )
         }

@@ -2,6 +2,7 @@ package day9
 
 import parseInput
 import permutations
+import splitToLines
 
 /**
 --- Day 9: All in a Single Night ---
@@ -41,10 +42,10 @@ What is the distance of the longest route?
 
 fun main(args: Array<String>) {
     val test = """
-            |London to Dublin = 464
-            |London to Belfast = 518
-            |Dublin to Belfast = 141
-            """.trimMargin()
+               |London to Dublin = 464
+               |London to Belfast = 518
+               |Dublin to Belfast = 141
+               """.trimMargin()
 
     println(findDistance(test, { it.min() }))
 
@@ -73,10 +74,7 @@ data class Travel(val from: String, val to: String, val distance: Int) {
     fun toList() = listOf(from, to)
 }
 
-private fun parseTravels(input: String) = input
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseTravels(input: String) = input.splitToLines()
         .map {
             val (from, _s1, to, _s2, distance) = it.split(" ")
 

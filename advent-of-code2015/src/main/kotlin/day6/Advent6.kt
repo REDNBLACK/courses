@@ -1,8 +1,10 @@
 package day6
 
 import array2d
+import day6.Operation.Pos
 import day6.Operation.Type.*
 import parseInput
+import splitToLines
 
 /**
 --- Day 6: Probably a Fire Hazard ---
@@ -44,13 +46,13 @@ toggle 0,0 through 999,999 would increase the total brightness by 2000000.
  */
 
 fun main(args: Array<String>) {
-    val test1 = """"turn on 0,0 through 999,999
-                   |toggle 0,0 through 999,0
-                   |turn off 499,499 through 500,500
-               """.trimMargin()
-    val test2 = """"turn on 0,0 through 0,0
-                   |toggle 0,0 through 999,999
-               """.trimMargin()
+    val test1 = """turn on 0,0 through 999,999
+                  |toggle 0,0 through 999,0
+                  |turn off 499,499 through 500,500
+                """.trimMargin()
+    val test2 = """turn on 0,0 through 0,0
+                  |toggle 0,0 through 999,999
+                """.trimMargin()
 
     println(executeOperations(test1) == 998996)
     println(executeOperations(test2, true) == 2000001)
@@ -88,9 +90,7 @@ data class Operation(val type: Type, val from: Pos, val to: Pos) {
     enum class Type {ON, OFF, TOGGLE }
 }
 
-private fun parseOperations(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val type = when {
                 "turn on" in it -> ON
@@ -104,5 +104,5 @@ private fun parseOperations(input: String) = input.split("\n")
                     .map(String::toInt)
                     .toList()
 
-            Operation(type, Operation.Pos(fromX, fromY), Operation.Pos(toX, toY))
+            Operation(type, Pos(fromX, fromY), Pos(toX, toY))
         }

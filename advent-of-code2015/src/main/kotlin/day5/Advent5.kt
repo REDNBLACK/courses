@@ -2,6 +2,7 @@ package day5
 
 import chunk
 import parseInput
+import splitToLines
 
 /**
 --- Day 5: Doesn't He Have Intern-Elves For This? ---
@@ -41,23 +42,23 @@ How many strings are nice under these new rules?
  */
 
 fun main(args: Array<String>) {
-    println("ugknbfddgicrmopn".isNice() == true)
-    println("jchzalrnumimnmh".isNice() == false)
-    println("aegwjzuvuyypxyu".isNice() == false)
-    println("dvszwmarrgswjxmb".isNice() == false)
+    println("ugknbfddgicrmopn".isNice())
+    println(!"jchzalrnumimnmh".isNice())
+    println(!"aegwjzuvuyypxyu".isNice())
+    println(!"dvszwmarrgswjxmb".isNice())
 
-    println("qjhvhtzxzqqjkmpb".isNiceSecond() == true)
-    println("xxyxx".isNiceSecond() == true)
-    println("uurcxstgmygtbstg".isNiceSecond() == false)
-    println("ieodomkazucvgmuy".isNiceSecond() == false)
+    println("qjhvhtzxzqqjkmpb".isNiceSecond())
+    println("xxyxx".isNiceSecond())
+    println(!"uurcxstgmygtbstg".isNiceSecond())
+    println(!"ieodomkazucvgmuy".isNiceSecond())
 
     val input = parseInput("day5-input.txt")
     println(countNice(input))
     println(countNiceSecond(input))
 }
 
-fun countNice(input: String) = parseData(input).count(String::isNice)
-fun countNiceSecond(input: String) = parseData(input).count(String::isNiceSecond)
+fun countNice(input: String) = input.splitToLines().count(String::isNice)
+fun countNiceSecond(input: String) = input.splitToLines().count(String::isNiceSecond)
 
 private fun String.isNice(): Boolean {
     fun hasAlteastThreeVowels() = filter { it in "aeiou" }.count() >= 3
@@ -74,7 +75,3 @@ private fun String.isNiceSecond(): Boolean {
 
     return hasRepeatingPair() && hasLetterBetweenEqual()
 }
-
-private fun parseData(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)

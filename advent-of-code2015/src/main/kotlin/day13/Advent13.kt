@@ -2,6 +2,7 @@ package day13
 
 import parseInput
 import permutations
+import splitToLines
 
 /**
 --- Day 13: Knights of the Dinner Table ---
@@ -81,10 +82,11 @@ fun findBestCombination(input: String, append: String? = null): Int? {
                 people.circularCombinations()
                         .map {
                             val (prev, current, next) = it
+                            val found = units.filter { it.who == current }
 
                             sequenceOf(
-                                    units.find { it.who == current && it.toWhom == prev }?.points ?: 0,
-                                    units.find { it.who == current && it.toWhom == next }?.points ?: 0
+                                    found.find { it.toWhom == prev }?.points ?: 0,
+                                    found.find { it.toWhom == next }?.points ?: 0
                             )
                         }
                         .sumBy { it.sum() }
@@ -103,9 +105,7 @@ private fun <T> List<T>.circularCombinations() = (0..size - 1)
             Triple(this[prev], this[current], this[next])
         }
 
-private fun parseHappinessUnits(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseHappinessUnits(input: String) = input.splitToLines()
         .map {
             val regex = Regex("""(\w+) would (lose|gain) (\d+) happiness units by sitting next to (\w+)""")
             val (who, type, points, toWhom) = regex.findAll(it)

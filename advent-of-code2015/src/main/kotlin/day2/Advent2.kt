@@ -1,6 +1,7 @@
 package day2
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 2: I Was Told There Would Be No Math ---
@@ -74,9 +75,7 @@ data class Present(val h: Int, val w: Int, val l: Int) {
     }
 }
 
-private fun parsePresents(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parsePresents(input: String) = input.splitToLines()
         .map {
             val (h, w, l) = Regex("""(\d+)""").findAll(it)
                     .map { it.groupValues[1] }

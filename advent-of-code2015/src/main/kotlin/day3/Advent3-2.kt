@@ -28,15 +28,15 @@ fun main(args: Array<String>) {
 }
 
 fun countHousesSecond(input: String) = parseMovesSecond(input)
-        .toList()
         .flatMap { executeMoves(moves = it) }
         .distinct()
         .count()
 
-private fun parseMovesSecond(input: String): Pair<List<Move>, List<Move>> {
-    fun parse(iCompare: (Int) -> Boolean) = parseMoves(input.toCharArray()
-            .filterIndexed { i, c -> iCompare(i) }
-            .joinToString(""))
+private fun parseMovesSecond(input: String): List<List<Move>> {
+    fun parse(indexCompare: (Int) -> Boolean) = input.toCharArray()
+            .filterIndexed { i, c -> indexCompare(i) }
+            .joinToString("")
+            .let(::parseMoves)
 
-    return parse { it % 2 == 0 } to parse { it % 2 != 0 }
+    return listOf(parse { it % 2 == 0 }, parse { it % 2 != 0 })
 }

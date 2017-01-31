@@ -48,5 +48,6 @@ inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline inne
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
 
 fun String.chunk(size: Int) = (0..length - size).map { i -> substring(i, i + size) }
+fun String.splitToLines() = trim().split("\n").map(String::trim).filter(String::isNotEmpty)
 fun String.toMD5() = MessageDigest.getInstance("MD5").digest(toByteArray())
 fun ByteArray.toHex() = String.format("%0" + (size shl 1) + "X", BigInteger(1, this))

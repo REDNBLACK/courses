@@ -1,6 +1,7 @@
 package day7
 
 import parseInput
+import splitToLines
 
 /**
 This year, Santa brought little Bobby Tables a set of wires and bitwise logic gates! Unfortunately, little Bobby is a little under the recommended age range, and he needs help assembling the circuit.
@@ -74,9 +75,7 @@ fun generateClass(input: String): String {
     return listOf(first, second).joinToString(System.lineSeparator().repeat(2))
 }
 
-private fun parseOperations(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val args = Regex("""[\da-z]+""")
                     .findAll(it)

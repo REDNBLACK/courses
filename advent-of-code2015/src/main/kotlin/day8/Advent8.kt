@@ -1,8 +1,7 @@
 package day8
 
-import array2d
-import day6.Operation.Type.*
 import parseInput
+import splitToLines
 
 /**
 --- Day 8: Matchsticks ---
@@ -41,11 +40,11 @@ Your task is to find the total number of characters to represent the newly encod
 
 fun main(args: Array<String>) {
     val test = """
-            |""
-            |"abc"
-            |"aaa\"aaa"
-            |"\x27"
-            """.trimMargin()
+               |""
+               |"abc"
+               |"aaa\"aaa"
+               |"\x27"
+               """.trimMargin()
 
     println(calcSizeDiff(test) == 12)
     println(calcSizeDiff(test, true) == 19)
@@ -56,7 +55,7 @@ fun main(args: Array<String>) {
 }
 
 fun calcSizeDiff(input: String, second: Boolean = false): Int {
-    val lines = parseData(input)
+    val lines = input.splitToLines()
 
     val lengthTotal = lines.sumBy { it.length }
     val decodedTotal = lines.sumBy(String::decodedCount)
@@ -69,8 +68,3 @@ fun String.encodedCount() = 2 + sumBy { if (it == '\\' || it == '\"') 2 else 1 }
 fun String.decodedCount() = trim('"').replace("\\\"", "r")
         .replace("\\\\", "r")
         .replace(Regex("\\\\x[a-f0-9]{2}"), "r").length
-
-private fun parseData(input: String) = input.trim()
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)

@@ -1,6 +1,7 @@
 package day16
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 16: Aunt Sue ---
@@ -87,10 +88,7 @@ fun findAuntNumber(input: String, search: Map<String, IntRange>): Int? {
 
 data class MFCSAM(val number: Int, val items: Map<String, Int>)
 
-private fun parseMFCSAM(input: String) = input
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseMFCSAM(input: String) = input.splitToLines()
         .map {
             val number = Regex("""Sue (\d+):""").find(it)!!.groups[1]!!.value.toInt()
             val items = Regex("""(?:(\w+):\s(\d+),?)+""")

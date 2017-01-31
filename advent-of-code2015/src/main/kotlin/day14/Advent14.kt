@@ -1,11 +1,9 @@
 package day14
 
 import parseInput
-import split
-import java.lang.Math.floor
+import splitToLines
 import java.lang.Math.min
 import java.util.*
-import java.util.function.BiFunction
 
 /**
 --- Day 14: Reindeer Olympics ---
@@ -72,16 +70,17 @@ fun findWinner(input: String, totalTime: Int): Map<String, Pair<String, Int>?> {
 
 data class Reindeer(val name: String, val speed: Int, val fly: Int, val rest: Int) {
     fun total() = fly + rest
-    fun getDistance(t: Int) = (name to speed * fly * (t / total()) + speed * min(fly, t % total()))
+    fun getDistance(time: Int) = (name to speed * fly * (time / total()) + speed * min(fly, time % total()))
 }
 
-private fun parseReindeers(input: String) = input
-        .split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseReindeers(input: String) = input.splitToLines()
         .map {
             val name = it.split(" ", limit = 2).first()
-            val (speed, flyTime, restTime) = Regex("""(\d+)""").findAll(it).map { it.groupValues[1] }.toList()
+            val (speed, flyTime, restTime) = Regex("""(\d+)""")
+                    .findAll(it)
+                    .map { it.groupValues[1] }
+                    .map(String::toInt)
+                    .toList()
 
-            Reindeer(name = name, speed = speed.toInt(), fly = flyTime.toInt(), rest = restTime.toInt())
+            Reindeer(name = name, speed = speed, fly = flyTime, rest = restTime)
         }
