@@ -19,6 +19,17 @@ You will not encounter any strings containing numbers.
 
 What is the sum of all numbers in the document?
 
+--- Part Two ---
+
+Uh oh - the Accounting-Elves have realized that they double-counted everything red.
+
+Ignore any object (and all of its children) which has any property with the value "red". Do this only for objects ({...}), not arrays ([...]).
+
+[1,2,3] still has a sum of 6.
+[1,{"c":"red","b":2},3] now has a sum of 4, because the middle object is ignored.
+{"d":"red","e":[1,2,3,4],"f":5} now has a sum of 0, because the entire structure is ignored.
+[1,"red",5] has a sum of 6, because "red" in an array has no effect.
+
  */
 
 fun main(args: Array<String>) {
@@ -33,12 +44,46 @@ fun main(args: Array<String>) {
 
     val input = parseInput("day12-input.txt")
     println(calculateSum(input))
+    println(calculateSumWithoutRed(input))
 }
 
-fun calculateSum(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
-        .sumBy {
-            Regex("""(-?\d+)""").findAll(it).map { it.groupValues[1] }.map(String::toInt).sum()
+fun calculateSum(input: String) = Regex("""(-?\d+)""")
+        .findAll(input)
+        .map { it.groupValues[1] }
+        .map(String::toInt)
+        .sum()
+
+fun calculateSumWithoutRed(input: String): Int {
+    val data = StringBuilder(input)
+
+    fun StringBuilder.findJsonDictBound(startPos: Int, endPos: Int): Int {
+        var counter = 0
+        var index = startPos
+        val map = mapOf('{' to 1, '}' to -1)
+
+        while (counter != endPos) {
+            index -= endPos
+            counter += map[this[index]] ?: 0
         }
+
+        return index
+    }
+
+    while (true) {
+        val pos = data.indexOf(""":"red"""")
+        if (pos == -1) break
+        val start = data.findJsonDictBound(pos, 1)
+        val end = data.findJsonDictBound(pos, -1)
+
+        with (data) {
+            val add = StringBuilder(subSequence(0, start))
+                    .append('0')
+                    .append(subSequence(end + 1, data.length))
+            setLength(0)
+            append(add)
+        }
+    }
+
+    return calculateSum(data.toString())
+}
 
