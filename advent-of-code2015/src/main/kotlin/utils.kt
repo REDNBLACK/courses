@@ -50,4 +50,14 @@ inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline inne
 fun String.chunk(size: Int) = (0..length - size).map { i -> substring(i, i + size) }
 fun String.splitToLines() = trim().split("\n").map(String::trim).filter(String::isNotEmpty)
 fun String.toMD5() = MessageDigest.getInstance("MD5").digest(toByteArray())
+fun String.indexOfAll(needle: String): List<Int> {
+    val result = mutableListOf<Int>()
+    var index = indexOf(needle)
+    while (index >= 0) {
+        if (index >= 0) result.add(index)
+        index = indexOf(needle, index + 1)
+    }
+
+    return result
+}
 fun ByteArray.toHex() = String.format("%0" + (size shl 1) + "X", BigInteger(1, this))

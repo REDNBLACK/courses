@@ -1,9 +1,8 @@
 package day19
 
-import combinations
+import indexOfAll
 import parseInput
 import splitToLines
-import java.util.regex.Pattern
 
 /**
 --- Day 19: Medicine for Rudolph ---
@@ -75,18 +74,6 @@ fun main(args: Array<String>) {
 data class Replacement(val from: String, val to: String)
 
 fun countPossibleMoleculesTransform(startInput: String, replacementsInput: String): Int {
-    fun String.indexOfAll(needle: String): List<Int> {
-        var index = indexOf(needle)
-        val result = mutableListOf<Int>()
-        if (index >= 0) result.add(index)
-        while (index >= 0) {
-            index = indexOf(needle, index + 1)
-            if (index >= 0) result.add(index)
-        }
-
-        return result
-    }
-
     return parseReplacements(replacementsInput)
             .flatMap { r ->
                 startInput.indexOfAll(r.from).map { i -> startInput.replaceRange(i, i + r.from.length, r.to) }
@@ -96,8 +83,4 @@ fun countPossibleMoleculesTransform(startInput: String, replacementsInput: Strin
 }
 
 private fun parseReplacements(input: String) = input.splitToLines()
-        .map {
-            val (from, to) = it.split(" => ")
-
-            Replacement(from, to)
-        }
+        .map { with (it.split(" => ")) { Replacement(first(), last()) } }

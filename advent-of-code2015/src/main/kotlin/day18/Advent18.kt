@@ -1,6 +1,8 @@
 package day18
 
+import combinations
 import parseInput
+import permutations
 import splitToLines
 
 /**
@@ -72,6 +74,62 @@ After 4 steps:
 After 4 steps, this example has four lights on.
 
 In your grid of 100x100 lights, given your initial configuration, how many lights are on after 100 steps?
+
+--- Part Two ---
+
+You flip the instructions over; Santa goes on to point out that this is all just an implementation of Conway's Game of Life. At least, it was, until you notice that something's wrong with the grid of lights you bought: four lights, one in each corner, are stuck on and can't be turned off. The example above will actually run like this:
+
+Initial state:
+##.#.#
+...##.
+#....#
+..#...
+#.#..#
+####.#
+
+After 1 step:
+#.##.#
+####.#
+...##.
+......
+#...#.
+#.####
+
+After 2 steps:
+#..#.#
+#....#
+.#.##.
+...##.
+.#..##
+##.###
+
+After 3 steps:
+#...##
+####.#
+..##.#
+......
+##....
+####.#
+
+After 4 steps:
+#.####
+#....#
+...#..
+.##...
+#.....
+#.#..#
+
+After 5 steps:
+##.###
+.##..#
+.##...
+.##...
+#.#...
+##...#
+After 5 steps, this example now has 17 lights on.
+
+In your grid of 100x100 lights, given your initial configuration, but with the four corners always in the on state, how many lights are on after 100 steps?
+
  */
 
 fun main(args: Array<String>) {
@@ -84,28 +142,25 @@ fun main(args: Array<String>) {
                |####..
                """.trimMargin()
 
+    println(executeAndCountFilled(test, 4) == 4)
+    println(executeAndCountFilled(test, 5, true))
+
     val input = parseInput("day18-input.txt")
-    execute(input, 100)
+    println(executeAndCountFilled(input, 100))
+    println(executeAndCountFilled(input, 100, true))
 }
 
-fun execute(input: String, steps: Int) {
-    val grid = parseGrid(input)
+fun executeAndCountFilled(input: String, steps: Int, second: Boolean = false) = (1..steps)
+        .fold(parseGrid(input), { grid, _s ->
+            val newGrid = grid.redraw()
+            if (second) newGrid.normalize()
+            newGrid
+        })
+        .sumBy { it.sum() }
 
-    repeat(steps) {
-        grid.redraw()
-//        grid[0][0] = true
-//        grid[0][99] = true
-//        grid[99][0] = true
-//        grid[99][99] = true
-    }
-
-    grid.drawMatrix()
-    println(grid.countFilled())
-}
-
-private fun Array<Array<Boolean>>.redraw() {
+private fun Array<Array<Int>>.redraw(): Array<Array<Int>> {
     fun calculate(x: Int, y: Int): Int {
-        fun get(x: Int, y: Int) = (this.getOrNull(x)?.getOrNull(y) ?: false).let { if (it) 1 else 0 }
+        fun get(x: Int, y: Int) = (getOrNull(x)?.getOrNull(y) ?: 0)
 
         val coordinates = listOf(
                 x - 1 to y - 1,
@@ -121,34 +176,30 @@ private fun Array<Array<Boolean>>.redraw() {
         return coordinates.sumBy { get(it.first, it.second) }
     }
 
+    val clone = Array(size) { get(it).clone() }
+
     for ((x, row) in withIndex()) {
         for ((y, light) in row.withIndex()) {
             val count = calculate(x, y)
 
-            if (!light && count == 3) {
-                this[x][y] = true
-            }
-            if (light && count != 3 && count != 2) {
-                this[x][y] = false
+            if (light == 0 && count == 3) {
+                clone[x][y] = 1
+            } else if (light == 1 && count != 3 && count != 2) {
+                clone[x][y] = 0
             }
         }
     }
+
+    return clone
 }
 
-private fun Array<Array<Boolean>>.drawMatrix() {
-    map { it.map { if (it) '#' else '.' }.joinToString("") }.joinToString(System.lineSeparator()).let(::println)
-}
+private fun Array<Array<Int>>.normalize() {
+    val min = 0
+    val max = size - 1
 
-private fun Array<Array<Boolean>>.countFilled() = sumBy { it.sumBy { if (it) 1 else 0 } }
+    listOf(min to max, max to min, max to max, min to min).forEach { this[it.first][it.second] = 1 }
+}
 
 private fun parseGrid(input: String) = input.splitToLines()
-        .map {
-            it.map {
-                when (it) {
-                    '#' -> true
-                    '.' -> false
-                    else -> throw IllegalArgumentException()
-                }
-            }.toTypedArray()
-        }
+        .map { it.map { if (it == '#') 1 else 0 }.toTypedArray() }
         .toTypedArray()
