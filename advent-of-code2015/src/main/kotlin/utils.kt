@@ -1,5 +1,6 @@
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.*
 
 fun parseInput(file: String): String {
     return Thread.currentThread()
@@ -7,6 +8,7 @@ fun parseInput(file: String): String {
             .getResourceAsStream(file)
             .bufferedReader()
             .use { it.readText() }
+            .trim()
 }
 
 fun <T> List<T>.chunk(size: Int): List<List<T>> {
