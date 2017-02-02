@@ -1,6 +1,5 @@
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.*
 
 fun parseInput(file: String): String {
     return Thread.currentThread()

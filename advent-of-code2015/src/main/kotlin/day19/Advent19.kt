@@ -2,7 +2,6 @@ package day19
 
 import indexOfAll
 import parseInput
-import shuffle
 import splitToLines
 
 /**

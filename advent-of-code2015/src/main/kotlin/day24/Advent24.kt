@@ -3,7 +3,6 @@ package day24
 import combinations
 import parseInput
 import splitToLines
-import java.util.*
 
 /**
 --- Day 24: It Hangs in the Balance ---
