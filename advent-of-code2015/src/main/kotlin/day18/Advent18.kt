@@ -1,8 +1,6 @@
 package day18
 
-import combinations
 import parseInput
-import permutations
 import splitToLines
 
 /**

@@ -7,6 +7,7 @@ fun parseInput(file: String): String {
             .getResourceAsStream(file)
             .bufferedReader()
             .use { it.readText() }
+            .trim()
 }
 
 fun <T> List<T>.chunk(size: Int): List<List<T>> {

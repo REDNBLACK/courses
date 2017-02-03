@@ -58,29 +58,49 @@ How long will it take to make the medicine? Given the available replacements and
  */
 
 fun main(args: Array<String>) {
-    val testStart = "HOH"
+    val testMolecule = "HOH"
     val testReplacements = """
-                        |H => HO
-                        |H => OH
-                        |O => HH
-                        """.trimMargin()
-    println(countPossibleMoleculesTransform(testStart, testReplacements) == 4)
+                           |H => HO
+                           |H => OH
+                           |O => HH
+                           """.trimMargin()
+    println(countPossibleMoleculesTransform(testMolecule, testReplacements) == 4)
+    println(countFewestNumberOfTransformations(testMolecule, testReplacements) == 6)
 
-    val inputStart = parseInput("day19-input-1.txt")
+    val inputMolecule = parseInput("day19-input-1.txt")
     val inputReplacements = parseInput("day19-input-2.txt")
-    println(countPossibleMoleculesTransform(inputStart, inputReplacements))
+    println(countPossibleMoleculesTransform(inputMolecule, inputReplacements))
+    println(countFewestNumberOfTransformations(inputMolecule, inputReplacements))
 }
 
 data class Replacement(val from: String, val to: String)
 
-fun countPossibleMoleculesTransform(startInput: String, replacementsInput: String): Int {
-    return parseReplacements(replacementsInput)
+fun countPossibleMoleculesTransform(molecule: String, replacements: String): Int {
+    return parseReplacements(replacements)
             .flatMap { r ->
-                startInput.indexOfAll(r.from).map { i -> startInput.replaceRange(i, i + r.from.length, r.to) }
+                molecule.indexOfAll(r.from).map { i -> molecule.replaceRange(i, i + r.from.length, r.to) }
             }
             .distinct()
             .count()
 }
 
-private fun parseReplacements(input: String) = input.splitToLines()
-        .map { with (it.split(" => ")) { Replacement(first(), last()) } }
+fun countFewestNumberOfTransformations(molecule: String, replacementsInput: String): Int {
+    val replacements = parseReplacements(replacementsInput, true)
+    val regex = Regex(replacements.map { it.from }.joinToString("|"))
+
+    var result = 0
+    var target = molecule.reversed()
+    while (target != "e") {
+        target = regex.replace(target, { r -> result++; replacements.first { it.from == r.value }.to }).trim()
+    }
+
+    return result
+}
+
+private fun parseReplacements(input: String, reversed: Boolean = false) = input.splitToLines()
+        .map {
+            with (it.split(" => ")) {
+                if (!reversed) Replacement(first(), last())
+                else Replacement(last().reversed(), first().reversed())
+            }
+        }
