@@ -47,14 +47,13 @@ fun main(args: Array<String>) {
                |Dublin to Belfast = 141
                """.trimMargin()
 
-    println(findDistance(test, { it.min() }))
+    println(findDistance(test) == mapOf("first" to 605, "second" to 982))
 
     val input = parseInput("day9-input.txt")
-    println(findDistance(input, { it.min() }))
-    println(findDistance(input, { it.max() }))
+    println(findDistance(input))
 }
 
-fun findDistance(input: String, mapper: (Set<Int>) -> Int?): Int? {
+fun findDistance(input: String): Map<String, Int?> {
     val travels = parseTravels(input)
 
     return travels
@@ -67,7 +66,7 @@ fun findDistance(input: String, mapper: (Set<Int>) -> Int?): Int? {
                         .filterNotNull()
                         .sumBy { it.distance }
             })
-            .let(mapper)
+            .let { mapOf("first" to it.min(), "second" to it.max()) }
 }
 
 data class Travel(val from: String, val to: String, val distance: Int) {

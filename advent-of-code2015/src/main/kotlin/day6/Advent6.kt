@@ -64,7 +64,6 @@ fun main(args: Array<String>) {
 
 fun executeOperations(input: String, second: Boolean = false): Int {
     val matrix = array2d(1000, 1000) { 0 }
-    val operations = parseOperations(input)
 
     fun change(o: Operation, callback: (Int) -> (Int)) {
         for (x in o.from.x..o.to.x) {
@@ -74,11 +73,19 @@ fun executeOperations(input: String, second: Boolean = false): Int {
         }
     }
 
-    for (o in operations) {
-        when (o.type) {
-            ON -> change(o, (if (second) { n: Int -> n + 1 } else { n: Int -> 1 }))
-            OFF -> change(o, (if (second) { n: Int -> Math.max(n - 1, 0) } else { n: Int -> 0 }))
-            TOGGLE -> change(o, (if (second) { n: Int -> n + 2 } else { n: Int -> if (n == 1) 0 else 1 }))
+    parseOperations(input).forEach { o ->
+        if (!second) {
+            when (o.type) {
+                ON -> change(o, { 1 })
+                OFF -> change(o, { 0 })
+                TOGGLE -> change(o, { if (it == 1) 0 else 1 })
+            }
+        } else {
+            when (o.type) {
+                ON -> change(o, { it + 1 })
+                OFF -> change(o, { Math.max(it - 1, 0) })
+                TOGGLE -> change(o, { it + 2 })
+            }
         }
     }
 
@@ -87,7 +94,7 @@ fun executeOperations(input: String, second: Boolean = false): Int {
 
 data class Operation(val type: Type, val from: Pos, val to: Pos) {
     data class Pos(val x: Int, val y: Int)
-    enum class Type {ON, OFF, TOGGLE }
+    enum class Type { ON, OFF, TOGGLE }
 }
 
 private fun parseOperations(input: String) = input.splitToLines()

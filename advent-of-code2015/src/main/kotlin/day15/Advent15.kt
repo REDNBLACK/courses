@@ -49,13 +49,14 @@ fun main(args: Array<String>) {
     val input = parseInput("day15-input.txt")
 
     println(findBestCombination(test) == 62842880)
-    println(findBestCombination(test, maxCalories = 500) == 57600000)
+    println(findBestCombination(test, 500) == 57600000)
 
     println(findBestCombination(input))
-    println(findBestCombination(input, maxCalories = 500))
+    println(findBestCombination(input, 500))
 }
 
-fun findBestCombination(input: String, maxTeaspoons: Int = 100, maxCalories: Int = 0): Int? {
+fun findBestCombination(input: String, maxCalories: Int = 0): Int? {
+    val maxTeaspoons = 100
     val ingredients = parseIngredients(input)
 
     fun mixtures(size: Int, max: Int, acc: MutableList<List<Int>> = mutableListOf()): List<List<Int>> {
@@ -107,12 +108,5 @@ private fun parseIngredients(input: String) = input.splitToLines()
                     .map(String::toInt)
                     .toList()
 
-            Ingredient(
-                    name = name,
-                    capacity = capacity,
-                    durability = durability,
-                    flavor = flavor,
-                    texture = texture,
-                    calories = calories
-            )
+            Ingredient(name, capacity, durability, flavor, texture, calories)
         }

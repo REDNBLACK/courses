@@ -1,5 +1,6 @@
 package day2
 
+import mul
 import parseInput
 import splitToLines
 
@@ -42,34 +43,32 @@ fun main(args: Array<String>) {
 
     val input = parseInput("day2-input.txt")
 
-    println(totalPaper(input))
-    println(totalRibbon(input))
+    println(total(input))
 }
 
-fun totalPaper(input: String) = parsePresents(input).map { it.calcPaper() }.sum()
-
-fun totalRibbon(input: String) = parsePresents(input).map { it.calcRibbon() }.sum()
+fun total(input: String) = parsePresents(input)
+        .map { it.calcPaper() to it.calcRibbon() }
+        .let { mapOf("paper" to it.sumBy { it.first }, "ribbon" to it.sumBy { it.second }) }
 
 data class Present(val h: Int, val w: Int, val l: Int) {
+    val dimensions = listOf(h, w, l)
+    val maxDimension = dimensions.let { it.indexOf(it.max()) }
+
     fun calcPaper(): Int {
         fun wrappingPaperArea() = 2 * l * w + 2 * w * h + 2 * h * l
-        fun slackArea(): Int {
-            val seq = sequenceOf(h, w, l)
-
-            return seq.filterIndexed { k, v -> k != seq.indexOf(seq.max()) }.reduce { a, b -> a * b }
-        }
+        fun slackArea() = dimensions
+                .filterIndexed { i, v -> i != maxDimension }
+                .mul()
 
         return wrappingPaperArea() + slackArea()
     }
 
     fun calcRibbon(): Int {
-        fun presentRibbon(): Int {
-            val seq = sequenceOf(h, w, l)
-
-            return seq.filterIndexed { k, v -> k != seq.indexOf(seq.max()) }.map { it * 2 }.reduce { a, b -> a + b }
-        }
-
-        fun bowRibbon() = sequenceOf(h, w, l).reduce { a, b -> a * b }
+        fun presentRibbon() = dimensions
+                .filterIndexed { i, v -> i != maxDimension }
+                .map { it * 2 }
+                .sum()
+        fun bowRibbon() = dimensions.mul()
 
         return presentRibbon() + bowRibbon()
     }
@@ -77,8 +76,7 @@ data class Present(val h: Int, val w: Int, val l: Int) {
 
 private fun parsePresents(input: String) = input.splitToLines()
         .map {
-            val (h, w, l) = Regex("""(\d+)""").findAll(it)
-                    .map { it.groupValues[1] }
+            val (h, w, l) = it.split('x')
                     .map(String::toInt)
                     .toList()
 

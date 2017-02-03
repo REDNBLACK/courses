@@ -46,25 +46,22 @@ fun main(args: Array<String>) {
                |"\x27"
                """.trimMargin()
 
-    println(calcSizeDiff(test) == 12)
-    println(calcSizeDiff(test, true) == 19)
+    println(calcSizeDiff(test) == mapOf("first" to 12, "second" to 19))
 
     val input = parseInput("day8-input.txt")
     println(calcSizeDiff(input))
-    println(calcSizeDiff(input, true))
 }
 
-fun calcSizeDiff(input: String, second: Boolean = false): Int {
-    val lines = input.splitToLines()
+fun calcSizeDiff(input: String): Map<String, Int> {
+    fun String.encodedCount() = 2 + sumBy { if (it == '\\' || it == '\"') 2 else 1 }
+    fun String.decodedCount() = trim('"').replace("\\\"", "r")
+            .replace("\\\\", "r")
+            .replace(Regex("\\\\x[a-f0-9]{2}"), "r").length
 
+    val lines = input.splitToLines()
     val lengthTotal = lines.sumBy { it.length }
     val decodedTotal = lines.sumBy(String::decodedCount)
     val encodedTotal = lines.sumBy(String::encodedCount)
 
-    return if (second) encodedTotal - lengthTotal else lengthTotal - decodedTotal
+    return mapOf("first" to lengthTotal - decodedTotal, "second" to encodedTotal - lengthTotal)
 }
-
-fun String.encodedCount() = 2 + sumBy { if (it == '\\' || it == '\"') 2 else 1 }
-fun String.decodedCount() = trim('"').replace("\\\"", "r")
-        .replace("\\\\", "r")
-        .replace(Regex("\\\\x[a-f0-9]{2}"), "r").length

@@ -54,18 +54,17 @@ fun main(args: Array<String>) {
 
     val input = parseInput("day5-input.txt")
     println(countNice(input))
-    println(countNiceSecond(input))
 }
 
-fun countNice(input: String) = input.splitToLines().count(String::isNice)
-fun countNiceSecond(input: String) = input.splitToLines().count(String::isNiceSecond)
+fun countNice(input: String) = input.splitToLines()
+        .let { mapOf("first" to it.count(String::isNice), "second" to it.count(String::isNiceSecond)) }
 
 private fun String.isNice(): Boolean {
-    fun hasAlteastThreeVowels() = filter { it in "aeiou" }.count() >= 3
+    fun hasAtLeastThreeVowels() = filter { it in "aeiou" }.count() >= 3
     fun hasRepeatingLetter() = chunk(2).filter { it[0] == it[1] }.count() > 0
-    fun dontContainsSubstring() = sequenceOf("ab", "cd", "pq", "xy").find { it in this } == null
+    fun notContainsSubstring() = sequenceOf("ab", "cd", "pq", "xy").find { it in this } == null
 
-    return hasAlteastThreeVowels() && hasRepeatingLetter() && dontContainsSubstring()
+    return hasAtLeastThreeVowels() && hasRepeatingLetter() && notContainsSubstring()
 }
 
 private fun String.isNiceSecond(): Boolean {

@@ -4,6 +4,7 @@ import parseInput
 import splitToLines
 
 /**
+--- Day 7: Some Assembly Required ---
 This year, Santa brought little Bobby Tables a set of wires and bitwise logic gates! Unfortunately, little Bobby is a little under the recommended age range, and he needs help assembling the circuit.
 
 Each wire has an identifier (some lowercase letters) and can carry a 16-bit signal (a number from 0 to 65535). A signal is provided to each wire by a gate, another wire, or some specific value. Each wire can only get a signal from one source, but can provide its signal to multiple destinations. A gate provides no signal until all of its inputs have a signal.
@@ -40,27 +41,32 @@ x: 123
 y: 456
 In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
 
+--- Part Two ---
+
+Now, take the signal you got on wire a, override wire b to that signal, and reset the other wires (including wire a). What new signal is ultimately provided to wire a?
+
  */
 
 fun main(args: Array<String>) {
-    val test = """123 -> x
-                  |456 -> y
-                  |x AND y -> d
-                  |x OR y -> e
-                  |x LSHIFT 2 -> f
-                  |y RSHIFT 2 -> g
-                  |NOT x -> h
-                  |NOT y -> i
+    val test = """
+               |123 -> x
+               |456 -> y
+               |x AND y -> d
+               |x OR y -> e
+               |x LSHIFT 2 -> f
+               |y RSHIFT 2 -> g
+               |NOT x -> h
+               |NOT y -> i
                """.trimMargin()
 
-    println(generateClass(test))
-    println(generateClass(parseInput("day7-input.txt")))
+    println(generateClasses(test))
+    println(generateClasses(parseInput("day7-input.txt")))
 
 //    println(Generated().a)
 //    println(Generated2().a)
 }
 
-fun generateClass(input: String): String {
+fun generateClasses(input: String): String {
     val first = parseOperations(input)
             .plus("fun getMembers() = Generated::class.declaredMemberProperties.map { it.name to it.get(this) }")
             .map { " ".repeat(4) + it }

@@ -66,11 +66,21 @@ fun main(args: Array<String>) {
     val input = parseInput("day13-input.txt")
 
     println(findBestCombination(test) == 330)
+
     println(findBestCombination(input))
     println(findBestCombination(input, "Me"))
 }
 
 fun findBestCombination(input: String, append: String? = null): Int? {
+    fun <T> List<T>.circularCombinations() = (0..size - 1)
+            .map { i ->
+                val prev = if (i - 1 < 0) size - 1 else i - 1
+                val current = i
+                val next = if (i + 1 == size) 0 else i + 1
+
+                Triple(this[prev], this[current], this[next])
+            }
+
     val units = parseHappinessUnits(input)
     val people = units.map { it.who }
             .distinct()
@@ -95,15 +105,6 @@ fun findBestCombination(input: String, append: String? = null): Int? {
 }
 
 data class HappinessUnit(val who: String, val toWhom: String, val points: Int)
-
-private fun <T> List<T>.circularCombinations() = (0..size - 1)
-        .map { i ->
-            val prev = if (i - 1 < 0) size - 1 else i - 1
-            val current = i
-            val next = if (i + 1 == size) 0 else i + 1
-
-            Triple(this[prev], this[current], this[next])
-        }
 
 private fun parseHappinessUnits(input: String) = input.splitToLines()
         .map {
