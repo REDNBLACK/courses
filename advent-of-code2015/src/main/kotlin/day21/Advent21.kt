@@ -1,5 +1,6 @@
 package day21
 
+import combinations
 import parseInput
 import splitToLines
 
@@ -52,25 +53,56 @@ In this scenario, the player wins! (Barely.)
 
 You have 100 hit points. The boss's actual stats are in your puzzle input. What is the least amount of gold you can spend and still win the fight?
 
+--- Part Two ---
+
+Turns out the shopkeeper is working with the boss, and can persuade you to buy whatever items he wants. The other rules still apply, and he still only has one of each item.
+
+What is the most amount of gold you can spend and still lose the fight?
+
  */
 
 fun main(args: Array<String>) {
-    val boss = Boss(109, 8, 2)
-    val player = Player(100, 0, 0)
+    val boss = Unit(109, 8, 2)
+    val player = Unit(100)
     val items = parseItems(parseInput("day21-input.txt"))
 
-    run(boss, player, items)
+    println(run(boss, player, items))
 }
 
-fun run(boss: Boss, player: Player, items: Map<Item.Type, List<Item>>) {
-    var bossStat = boss
-    var playerStat = player
+fun run(boss: Unit, player: Unit, items: Map<Item.Type, List<Item>>): Map<String, Int> {
+    val (weapons, armorList, rings) = items.values.toList()
+    val cost = hashMapOf("min" to Int.MAX_VALUE, "max" to Int.MIN_VALUE)
+
+    for (weapon in weapons) {
+        for (armor in armorList) {
+            for ((ring1, ring2) in rings.combinations(2)) {
+                val currentItems = sequenceOf(weapon, armor, ring1, ring2)
+                val currentPlayer = player.copy(
+                        damage = currentItems.sumBy(Item::damage),
+                        armor = currentItems.sumBy(Item::armor),
+                        netWorth = currentItems.sumBy(Item::cost)
+                )
+
+                if (currentPlayer.fight(boss)) {
+                    cost.computeIfPresent("min", { k, v -> Math.min(v, currentPlayer.netWorth) })
+                } else {
+                    cost.computeIfPresent("max", { k, v -> Math.max(v, currentPlayer.netWorth) })
+                }
+            }
+        }
+    }
+
+    return cost
 }
 
-data class Player(val hp: Int, val damage: Int, val armor: Int)
+data class Unit(val hp: Int, val damage: Int = 0, val armor: Int = 0, val netWorth: Int = 0) {
+    fun fight(other: Unit): Boolean {
+        val unitMaxDmg = other.hp.toDouble() / Math.max(damage - other.armor, 1)
+        val otherMaxDmg = hp.toDouble() / Math.max(other.damage - armor, 1)
 
-data class Boss(val hp: Int, val damage: Int, val armor: Int)
-
+        return Math.ceil(unitMaxDmg) <= Math.ceil(otherMaxDmg)
+    }
+}
 data class Item(val type: Type, val title: String, val cost: Int, val damage: Int, val armor: Int) {
     enum class Type { WEAPONS, ARMOR, RINGS }
 }
