@@ -1,8 +1,11 @@
 package day21
 
 import combinations
+import day21.Item.Type.*
 import parseInput
 import splitToLines
+import java.lang.Math.max
+import java.lang.Math.min
 
 /**
 --- Day 21: RPG Simulator 20XX ---
@@ -66,15 +69,15 @@ fun main(args: Array<String>) {
     val player = Unit(100)
     val items = parseItems(parseInput("day21-input.txt"))
 
-    println(run(boss, player, items))
+    println(fight(boss, player, items))
 }
 
-fun run(boss: Unit, player: Unit, items: Map<Item.Type, List<Item>>): Map<String, Int> {
-    val (weapons, armorList, rings) = items.values.toList()
+fun fight(boss: Unit, player: Unit, items: List<Item>): Map<String, Int> {
+    val (weapons, armors, rings) = items.groupBy(Item::type).values.toList()
     val cost = hashMapOf("min" to Int.MAX_VALUE, "max" to Int.MIN_VALUE)
 
     for (weapon in weapons) {
-        for (armor in armorList) {
+        for (armor in armors) {
             for ((ring1, ring2) in rings.combinations(2)) {
                 val currentItems = sequenceOf(weapon, armor, ring1, ring2)
                 val currentPlayer = player.copy(
@@ -84,9 +87,9 @@ fun run(boss: Unit, player: Unit, items: Map<Item.Type, List<Item>>): Map<String
                 )
 
                 if (currentPlayer.fight(boss)) {
-                    cost.computeIfPresent("min", { k, v -> Math.min(v, currentPlayer.netWorth) })
+                    cost.computeIfPresent("min", { k, v -> min(v, currentPlayer.netWorth) })
                 } else {
-                    cost.computeIfPresent("max", { k, v -> Math.max(v, currentPlayer.netWorth) })
+                    cost.computeIfPresent("max", { k, v -> max(v, currentPlayer.netWorth) })
                 }
             }
         }
@@ -107,7 +110,7 @@ data class Item(val type: Type, val title: String, val cost: Int, val damage: In
     enum class Type { WEAPONS, ARMOR, RINGS }
 }
 
-private fun parseItems(input: String): Map<Item.Type, List<Item>> {
+private fun parseItems(input: String): List<Item> {
     var currentType: Item.Type? = null
     return input.splitToLines()
             .map { str ->
@@ -126,9 +129,7 @@ private fun parseItems(input: String): Map<Item.Type, List<Item>> {
             }
             .filterNotNull()
             .plus(listOf(
-                    Item(Item.Type.WEAPONS, "no weapon", 0, 0, 0),
-                    Item(Item.Type.ARMOR, "no armor", 0, 0, 0),
-                    Item(Item.Type.RINGS, "no rings", 0, 0, 0)
+                    Item(ARMOR, "no armor", 0, 0, 0),
+                    Item(RINGS, "no rings", 0, 0, 0)
             ))
-            .groupBy(Item::type)
 }
