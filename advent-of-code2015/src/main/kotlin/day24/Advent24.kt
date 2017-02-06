@@ -1,6 +1,7 @@
 package day24
 
 import combinations
+import mul
 import parseInput
 import splitToLines
 
@@ -92,7 +93,7 @@ fun findLowestQE(input: String, groupsSize: Int): Pair<Int, Long>? {
             .mapNotNull { i ->
                 data.combinations(i)
                         .filter { it.size <= maxSize && it.sum() == maxSum }
-                        .map { it.size to it.map(Int::toLong).reduce { a, b -> a * b } }
+                        .map { it.size to it.map(Int::toLong).mul() }
                         .firstOrNull()
             }
             .first()

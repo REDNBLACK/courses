@@ -10,13 +10,6 @@ fun parseInput(file: String): String {
             .trim()
 }
 
-fun <T> List<T>.chunk(size: Int): List<List<T>> {
-    return (0..lastIndex / size).map {
-        val fromIndex = it * size
-        val toIndex = Math.min(fromIndex + size, this.size)
-        subList(fromIndex, toIndex)
-    }
-}
 fun Iterable<Int>.mul() = reduce { a, b -> a * b }
 fun Iterable<Long>.mul() = reduce { a, b -> a * b }
 fun <T : Any> List<T>.permutations() : Sequence<List<T>> = if (size == 1) sequenceOf(this) else {

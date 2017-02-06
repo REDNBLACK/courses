@@ -1,5 +1,6 @@
 package day15
 
+import mul
 import parseInput
 import splitToLines
 
@@ -80,7 +81,7 @@ fun findBestCombination(input: String, maxCalories: Int = 0): Int? {
                 .map { p -> p.first.map { it * p.second } }
         val dough = proportions.reduce { a, b -> a.zip(b).map { it.toList().sum() } }
         val calories = dough.last()
-        val result = dough.dropLast(1).map { Math.max(it, 0) }.reduce { a, b -> a * b }
+        val result = dough.dropLast(1).map { Math.max(it, 0) }.mul()
 
         return if (maxCalories != 0) (if (calories == maxCalories) result else 0) else result
     }
