@@ -1,7 +1,5 @@
 package day22
 
-import java.util.*
-
 
 /**
 --- Day 22: Wizard Simulator 20XX ---
@@ -112,9 +110,21 @@ Player casts Magic Missile, dealing 4 damage.
 Poison deals 3 damage. This kills the boss, and the player wins.
 You start with 50 hit points and 500 mana points. The boss's actual stats are in your puzzle input. What is the least amount of mana you can spend and still win the fight? (Do not include mana recharge effects as "spending" negative mana.)
 
+--- Part Two ---
+
+On the next run through the game, you increase the difficulty to hard.
+
+At the start of each player turn (before any other effects apply), you lose 1 hit point. If this brings you to or below 0 hit points, you lose.
+
+With the same starting stats for you and the boss, what is the least amount of mana you can spend and still win the fight?
+
  */
 fun main(args: Array<String>) {
-    play(Int.MAX_VALUE, State(playerMana = 500, player = Player(50, 0), boss = Player(51, 9))).let(::println) //900
+    val player = Player(50, 0)
+    val boss = Player(51, 9)
+
+    play(Int.MAX_VALUE, State(playerMana = 500, player = player, boss = boss)).let(::println) // 900
+    play(Int.MAX_VALUE, State(playerMana = 500, player = player, boss = boss, penalty = 1)).let(::println) // 1216
 }
 
 data class State(
