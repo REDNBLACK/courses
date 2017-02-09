@@ -41,7 +41,7 @@ fun findPossibleVertical(input: String) = parseTrianglesVertical(input).filter {
 private fun parseTrianglesVertical(input: String): List<Triangle> {
     val lines = input.splitToLines()
             .map {
-                it.split(" ").map(String::trim).filter(String::isNotEmpty).map(String::toInt)
+                it.splitToLines(" ").map(String::toInt)
             }
 
     return lines.map { it[0] }

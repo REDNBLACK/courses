@@ -1,7 +1,8 @@
 package day01
 
-import day01.Direction.*
+import day01.State.Direction.*
 import parseInput
+import splitToLines
 
 /**
  * --- Day 1: No Time for a Taxicab ---
@@ -23,47 +24,55 @@ R2, R2, R2 leaves you 2 blocks due South of your starting position, which is 2 b
 R5, L5, R5, R3 leaves you 12 blocks away.
 How many blocks away is Easter Bunny HQ?
 
+--- Part Two ---
+
+Then, you notice the instructions continue on the back of the Recruiting Document. Easter Bunny HQ is actually at the first location you visit twice.
+
+For example, if your instructions are R8, R4, R4, R8, the first location you visit twice is 4 blocks away, due East.
+
+How many blocks away is the first location you visit twice?
+
  */
 
 fun main(args: Array<String>) {
     println(findDestination("R2, L3").countBlocks() == 5)
     println(findDestination("R2, R2, R2").countBlocks() == 2)
     println(findDestination("R5, L5, R5, R3").countBlocks() == 12)
+    println(findDestination("R8, R4, R4, R8").countBlocks())
 
     val input = parseInput("day1-input.txt")
     println(findDestination(input).countBlocks())
-}
-
-enum class Turn(val value: Int) {
-    R(1), L(-1);
-}
-enum class Direction(val value: Int) {
-    NORTH(0), EAST(1), SOUTH(2), WEST(3);
+    println(findDestination(input).countBlocks())
 }
 
 data class State(val direction: Direction, val x: Int, val y: Int) {
+    enum class Direction(val value: Int) {
+        NORTH(0), EAST(1), SOUTH(2), WEST(3);
+    }
+
     fun countBlocks() = Math.abs(x) + Math.abs(y)
 }
-data class Move(val turn: Turn, val steps: Int)
+data class Move(val turn: Turn, val steps: Int) {
+    enum class Turn(val value: Int) { R(1), L(-1) }
+}
 
 fun findDestination(input: String): State {
     return parseMoves(input).fold(State(NORTH, 0, 0)) { state, move ->
-        val direction = Direction.values()[(state.direction.value + move.turn.value + 4) % 4]
-
+        val (turn, steps) = move
+        val direction = State.Direction.values()[(state.direction.value + turn.value + 4) % 4]
         when (direction) {
-            NORTH -> state.copy(direction, x = state.x - move.steps)
-            SOUTH -> state.copy(direction, x = state.x + move.steps)
-            EAST -> state.copy(direction, y = state.y + move.steps)
-            WEST -> state.copy(direction, y = state.y - move.steps)
+            NORTH -> state.copy(direction, x = state.x - steps)
+            SOUTH -> state.copy(direction, x = state.x + steps)
+            EAST -> state.copy(direction, y = state.y + steps)
+            WEST -> state.copy(direction, y = state.y - steps)
         }
     }
 }
 
-private fun parseMoves(input: String) = input.split(",")
-        .map(String::trim)
+private fun parseMoves(input: String) = input.splitToLines(",")
         .map { it ->
-            val turn = Turn.valueOf(it[0].toString())
-            val steps = it[1].toString().toInt()
+            val turn = Move.Turn.valueOf(it[0].toString())
+            val steps = it.drop(1).toInt()
 
             Move(turn, steps)
         }

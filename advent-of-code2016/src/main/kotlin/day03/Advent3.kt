@@ -34,10 +34,7 @@ fun findPossible(input: String) = parseTriangles(input).filter { it.isPossible()
 
 private fun parseTriangles(input: String) = input.splitToLines()
         .map {
-            val (x, y, z) = it.split(" ")
-                    .map(String::trim)
-                    .filter(String::isNotEmpty)
-                    .map(String::toInt)
+            val (x, y, z) = it.splitToLines(" ").map(String::toInt)
 
             Triangle(x, y, z)
         }
