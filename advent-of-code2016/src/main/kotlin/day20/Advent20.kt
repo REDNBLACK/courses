@@ -1,6 +1,7 @@
 package day20
 
 import parseInput
+import splitToLines
 import java.util.stream.LongStream
 
 /**
@@ -53,9 +54,7 @@ fun countWhitelisted(input: String): Long {
             .count()
 }
 
-private fun parseRanges(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseRanges(input: String) = input.splitToLines()
         .map { it ->
             val (min, max) = it.split("-")
 

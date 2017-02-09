@@ -1,6 +1,7 @@
 package day3
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 3: Squares With Three Sides ---
@@ -31,9 +32,7 @@ data class Triangle(val x: Int, val y: Int, val z: Int) {
 
 fun findPossible(input: String) = parseTriangles(input).filter { it.isPossible() }
 
-private fun parseTriangles(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseTriangles(input: String) = input.splitToLines()
         .map {
             val (x, y, z) = it.split(" ")
                     .map(String::trim)

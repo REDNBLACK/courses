@@ -1,6 +1,7 @@
 package day4
 
 import parseInput
+import splitToLines
 import java.util.*
 
 /**
@@ -70,20 +71,17 @@ fun findRoomContainsDecryptedMessage(input: String, message: String): List<Room>
         }
     }
 
-    fun String.decrypt(times: Int) = toCharArray().map { it.shift(times) }.joinToString("")
+    fun String.decrypt(times: Int) = map { it.shift(times) }.joinToString("")
 
     return parseRooms(input).filter { it.name.decrypt(it.sectorId).contains(message) }
 }
 
-private fun parseRooms(input: String): List<Room> {
-    val pattern = Regex("""(.+)-(\d+)\[(.+)\]""")
+private fun parseRooms(input: String) = input.splitToLines()
+        .map {
+            val (name, sectorId, checksum) = Regex("""(.+)-(\d+)\[(.+)\]""")
+                    .matchEntire(it)
+                    ?.groupValues!!
+                    .drop(1)
 
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map {
-                val (name, sectorId, checksum) = pattern.matchEntire(it)?.groupValues!!.drop(1)
-
-                Room(name, sectorId.toInt(), checksum)
-            }
-}
+            Room(name, sectorId.toInt(), checksum)
+        }

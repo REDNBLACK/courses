@@ -1,7 +1,8 @@
 package day7
 
-import parseInput
 import chunk
+import parseInput
+import splitToLines
 
 /**
 --- Day 7: Internet Protocol Version 7 ---
@@ -75,16 +76,11 @@ fun findSupportingTLS(input: String) = parseIP(input).filter(IP::supportsTLS)
 
 fun finsSupportingSSL(input: String) = parseIP(input).filter(IP::supportsSSL)
 
-private fun parseIP(input: String): List<IP> {
-    val pattern = Regex("""\[([^\]]+)\]""")
+private fun parseIP(input: String) = input.splitToLines()
+        .map {
+            val pattern = Regex("""\[([^\]]+)\]""")
+            val hypernets = pattern.findAll(it).map { it.groupValues[1] }.toList()
+            val sequences = pattern.split(it)
 
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map {
-                val hypernets = pattern.findAll(it).map { it.groupValues[1] }.toList()
-                val sequences = pattern.split(it)
-
-                IP(sequences, hypernets)
-            }
-}
+            IP(sequences, hypernets)
+        }

@@ -1,6 +1,7 @@
 package day15
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 15: Timing is Everything ---
@@ -66,16 +67,12 @@ fun getTiming(input: String, parseFunc: (String) -> List<Disc>): Int {
     return loop(1, parseFunc(input))
 }
 
-private fun parseDiscs(input: String): List<Disc> {
-    return input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map { s ->
-                val (id, posCount, _skip, startPos) = Regex("""(\d+)""")
-                        .findAll(s)
-                        .map { it.value }
-                        .toList()
+private fun parseDiscs(input: String) = input.splitToLines()
+        .map { s ->
+            val (id, posCount, _skip, startPos) = Regex("""(\d+)""")
+                    .findAll(s)
+                    .map { it.value }
+                    .toList()
 
-                Disc(id = id.toInt(), posCount = posCount.toInt(), startPos = startPos.toInt())
-            }
-}
+            Disc(id = id.toInt(), posCount = posCount.toInt(), startPos = startPos.toInt())
+        }

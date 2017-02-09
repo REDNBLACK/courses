@@ -2,6 +2,7 @@ package day12
 
 import day12.Operation.Type.*
 import parseInput
+import splitToLines
 
 /**
 --- Day 12: Leonardo's Monorail ---
@@ -88,9 +89,7 @@ fun executeOperations(input: String): Map<String, Int> {
     return registers
 }
 
-private fun parseOperations(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val args = it.split(" ")
             val type = Operation.Type.valueOf(args[0].toUpperCase())

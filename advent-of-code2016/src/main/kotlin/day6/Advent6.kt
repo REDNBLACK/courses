@@ -1,7 +1,8 @@
 package day6
 
-import parseInput
 import array2d
+import parseInput
+import splitToLines
 
 /**
 --- Day 6: Signals and Noise ---
@@ -85,10 +86,7 @@ fun findMostFrequentChars(input: String) = parseMessages(input).map { it.mostFre
 fun findLeastFrequentChars(input: String) = parseMessages(input).map { it.leastFrequentChar() }.joinToString("")
 
 private fun parseMessages(input: String): List<Message> {
-    val lines = input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
-            .map { it.toCharArray().toList() }
+    val lines = input.splitToLines().map(String::toList)
 
     val rotate = fun (): Array<Array<Char>> {
         val result = array2d(lines.first().size, lines.size) { '0' }

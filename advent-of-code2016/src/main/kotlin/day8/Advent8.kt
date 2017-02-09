@@ -3,6 +3,7 @@ package day8
 import array2d
 import day8.Operation.Type.*
 import parseInput
+import splitToLines
 
 /**
 You come across a door implementing what you can only assume is an implementation of two-factor authentication after a long game of requirements telephone.
@@ -70,6 +71,21 @@ data class Operation(val type: Operation.Type, val payload1: Int, val payload2: 
 }
 
 fun execute(input: String, matrix: Array<Array<Boolean>>): Array<Array<Boolean>> {
+    fun <T> Array<Array<T>>.shiftDown(x: Int) {
+        val height = size - 1
+        val bottom = this[height][x]
+        for (y in height downTo 0) {
+            this[y][x] = if (y > 0) this[y - 1][x] else bottom
+        }
+    }
+    fun <T> Array<Array<T>>.shiftRight(y: Int) {
+        val width = this[0].size - 1
+        val right = this[y][width]
+        for (x in width downTo 0) {
+            this[y][x] = if (x > 0) this[y][x - 1] else right
+        }
+    }
+
     val operations = parseOperations(input)
 
     for ((type, p1, p2) in operations) {
@@ -93,31 +109,13 @@ fun execute(input: String, matrix: Array<Array<Boolean>>): Array<Array<Boolean>>
     return matrix
 }
 
-private fun Array<Array<Boolean>>.drawMatrix() {
-    println(map { it.map { if (it) '█' else '▒' }.joinToString("") }.joinToString(System.lineSeparator()))
-}
+private fun Array<Array<Boolean>>.drawMatrix() = map { it.map { if (it) '█' else '▒' }.joinToString("") }
+                .joinToString(System.lineSeparator())
+                .let(::println)
 
 private fun Array<Array<Boolean>>.countFilled() = sumBy { it.sumBy { if (it) 1 else 0 } }
 
-private fun <T> Array<Array<T>>.shiftDown(x: Int) {
-    val height = size - 1
-    val bottom = this[height][x]
-    for (y in height downTo 0) {
-        this[y][x] = if (y > 0) this[y - 1][x] else bottom
-    }
-}
-
-private fun <T> Array<Array<T>>.shiftRight(y: Int) {
-    val width = this[0].size - 1
-    val right = this[y][width]
-    for (x in width downTo 0) {
-        this[y][x] = if (x > 0) this[y][x - 1] else right
-    }
-}
-
-private fun parseOperations(input: String) = input.split("\n")
-        .map(String::trim)
-        .filter(String::isNotEmpty)
+private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val (payload1, payload2) = Regex("""(\d+)""")
                     .findAll(it)

@@ -1,7 +1,6 @@
 package day13
 
 import array2d
-import parseInput
 
 /**
 --- Day 13: A Maze of Twisty Little Cubicles ---

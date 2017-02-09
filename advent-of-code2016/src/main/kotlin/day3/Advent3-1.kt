@@ -2,6 +2,7 @@ package day3
 
 import chunk
 import parseInput
+import splitToLines
 
 /**
 --- Day 3: Squares With Three Sides ---
@@ -38,9 +39,7 @@ fun main(args: Array<String>) {
 fun findPossibleVertical(input: String) = parseTrianglesVertical(input).filter { it.isPossible() }
 
 private fun parseTrianglesVertical(input: String): List<Triangle> {
-    val lines = input.split("\n")
-            .map(String::trim)
-            .filter(String::isNotEmpty)
+    val lines = input.splitToLines()
             .map {
                 it.split(" ").map(String::trim).filter(String::isNotEmpty).map(String::toInt)
             }

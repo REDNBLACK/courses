@@ -1,6 +1,7 @@
 package day2
 
 import parseInput
+import splitToLines
 
 /**
 --- Day 2: Bathroom Security ---
@@ -106,6 +107,6 @@ fun findCode(input: String, matrix: Array<IntArray>, startPos: Pos): String {
             .joinToString("")
 }
 
-private fun parseMoves(input: String) = input.split("\n")
+private fun parseMoves(input: String) = input.splitToLines()
         .map { it.filter(Char::isLetter).map { s -> Move.valueOf(s.toString()) } }
         .filter { it.isNotEmpty() }
