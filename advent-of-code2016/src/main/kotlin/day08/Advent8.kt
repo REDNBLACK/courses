@@ -1,7 +1,7 @@
-package day8
+package day08
 
 import array2d
-import day8.Operation.Type.*
+import day08.Operation.Type.*
 import parseInput
 import splitToLines
 
