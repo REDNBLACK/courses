@@ -8,6 +8,7 @@ import day10.Operation.Direction.OUTPUT
 import day10.Operation.Target
 import day10.Operation.Type.HIGH
 import day10.Operation.Type.LOW
+import mul
 import parseInput
 import splitToLines
 import java.util.*
@@ -39,6 +40,10 @@ In the end, output bin 0 contains a value-5 microchip, output bin 1 contains a v
 
 Based on your instructions, what is the number of the bot that is responsible for comparing value-61 microchips with value-17 microchips?
 
+--- Part Two ---
+
+What do you get if you multiply together the values of one chip in each of outputs 0, 1, and 2?
+
  */
 
 fun main(args: Array<String>) {
@@ -50,54 +55,61 @@ fun main(args: Array<String>) {
                  |bot 0 gives low to output 2 and high to output 0
                  |value 2 goes to bot 2
                """.trimMargin()
+    val input = parseInput("day10-input.txt")
 
-//    println(execute(test))
-    println(execute(parseInput("day10-input.txt")))
+    println(findBot(test, { b -> b.low() == 2 && b.high() == 5 }) == mapOf("first" to 2, "second" to 30))
+    println(findBot(input, { b -> b.low() == 17 && b.high() == 61 }))
 }
 
-fun execute(input: String) {
+fun findBot(input: String, predicate: (Bot) -> Boolean): Map<String, Int> {
     val bots = parseValueAssignments(input)
-            .groupBy { it.botNumber }
-            .map { it.key to Bot(it.key, it.value.map { it.value }) }
+            .groupBy { it.first }
+            .map { it.key to Bot(it.key, it.value.map { it.second }.toSet()) }
             .toMap(HashMap())
-    println(bots)
-    val bins = HashMap<Int, Bin>()
+    val outputs = HashMap<Int, Int>()
     val operations = parseOperations(input)
 
-    for ((botNumber, targets) in operations) {
-        val bot = bots.getOrElse(botNumber, { null }) ?: continue
+    var botNumber = 0
+    val done = mutableSetOf<Int>()
+    while (done.size < operations.size) {
+        for ((index, operation) in operations.withIndex()) {
+            val bot = bots.getOrElse(operation.botNumber, { Bot(operation.botNumber) })
 
-        for ((entityNumber, direction, type) in targets) {
-            val value = when (type) { LOW -> bot.low(); HIGH -> bot.high() }
+            if (!bot.hasChips()) continue
+            if (predicate(bot)) botNumber = bot.number
 
-            when (direction) {
-                OUTPUT -> bins.compute(entityNumber, { k, v -> (v ?: Bin(k)).addChip(value) })
-                BOT -> bots.compute(entityNumber, { k, v -> (v ?: Bot(k)).addChip(value) })
+            for ((number, direction, type) in operation.targets) {
+                val value = when (type) { LOW -> bot.low(); HIGH -> bot.high() }
+
+                when (direction) {
+                    OUTPUT -> outputs.compute(number, { k, v -> value })
+                    BOT -> bots.compute(number, { k, v -> (v ?: Bot(k)).addChip(value) })
+                }
             }
-        }
 
-        bots.put(botNumber, bot.clearChips())
+            bots.put(operation.botNumber, bot.clearChips())
+            done.add(index)
+        }
     }
 
-    bots.values.forEach { println(it) }
-    bins.values.forEach { println(it) }
+    return mapOf(
+            "first" to botNumber,
+            "second" to (0..2).map { outputs[it] }.filterNotNull().mul()
+    )
 }
 
-data class Bot(val number: Int, val chips: List<Int> = listOf()) {
+data class Bot(val number: Int, val chips: Set<Int> = setOf()) {
+    fun hasChips() = chips.size == 2
     fun low() = chips.min() ?: throw RuntimeException()
     fun high() = chips.max() ?: throw RuntimeException()
     fun addChip(value: Int) = copy(chips = chips.plus(value))
-    fun clearChips() = copy(chips = listOf())
+    fun clearChips() = copy(chips = setOf())
 }
-data class Bin(val number: Int, val chips: List<Int> = listOf()) {
-    fun addChip(value: Int) = copy(chips = chips.plus(value))
-}
-data class Operation(val botNumber: Int, val targets: List<Target>) {
+data class Operation(val botNumber: Int, val targets: Set<Target>) {
     enum class Direction { OUTPUT, BOT }
     enum class Type { LOW, HIGH }
     data class Target(val entityNumber: Int, val direction: Direction, val type: Type)
 }
-data class ValueAssign(val botNumber: Int, val value: Int)
 
 private fun parseOperations(input: String) = input.splitToLines()
         .filter { it.startsWith("bot") }
@@ -105,14 +117,14 @@ private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val (botNumber, lowDirection, lowNumber, highDirection, highNumber) =
                     Regex("""bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d+)""")
-                    .findAll(it)
-                    .map { it.groupValues.drop(1).toList() }
-                    .toList()
-                    .flatMap { it }
+                            .findAll(it)
+                            .map { it.groupValues.drop(1).toList() }
+                            .toList()
+                            .flatMap { it }
 
             Operation(
                     botNumber = botNumber.toInt(),
-                    targets = listOf(
+                    targets = setOf(
                             Target(lowNumber.toInt(), Direction.valueOf(lowDirection.toUpperCase()), LOW),
                             Target(highNumber.toInt(), Direction.valueOf(highDirection.toUpperCase()), HIGH)
                     )
@@ -128,5 +140,5 @@ private fun parseValueAssignments(input: String) = input.splitToLines()
                     .map(String::toInt)
                     .toList()
 
-            ValueAssign(botNumber, value)
+            botNumber to value
         }
