@@ -71,7 +71,6 @@ fun main(args: Array<String>) {
 
 data class Message(val payload: String) {
     fun mostFrequentChar() = payload.charByFunc { it.maxBy { it.value } }
-
     fun leastFrequentChar() = payload.charByFunc { it.minBy { it.value } }
 
     private fun String.charByFunc(func: (Map<Char, Int>) -> Map.Entry<Char, Int>?): Char? {

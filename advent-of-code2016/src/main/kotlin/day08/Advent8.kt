@@ -58,7 +58,6 @@ fun main(args: Array<String>) {
                  |rotate column x=1 by 1""".trimMargin()
     val resultMatrix1 = execute(test, array2d(3, 7) { false })
     println(resultMatrix1.countFilled() == 6)
-    resultMatrix1.drawMatrix()
 
     val input = parseInput("day8-input.txt")
     val resultMatrix2 = execute(input, array2d(6, 50) { false })

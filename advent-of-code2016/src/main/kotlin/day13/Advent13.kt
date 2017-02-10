@@ -48,11 +48,11 @@ How many locations (distinct x,y coordinates, including your starting location) 
  */
 
 fun main(args: Array<String>) {
-    println(findShortestPath(10, Pos(7, 4)))
+    println(findShortestPath(10, Pos(7, 4)).first == 11)
     println(findShortestPath(1362, Pos(31, 39)))
 }
 
-fun findShortestPath(size: Int, endPos: Pos): Map<String, Int?> {
+fun findShortestPath(size: Int, endPos: Pos): Pair<Int?, Int?> {
     val positions = sequenceOf(Pos(1, 1, 0)).toCollection(LinkedList())
     val visited = hashMapOf<Pos2D, Int>()
     while (positions.isNotEmpty()) {
@@ -61,10 +61,7 @@ fun findShortestPath(size: Int, endPos: Pos): Map<String, Int?> {
         positions += curPos.next(size).filter { it.to2D() !in visited || visited[it.to2D()] ?: 0 > it.z }
     }
 
-    return hashMapOf(
-            "first" to visited[endPos.to2D()],
-            "second" to visited.count { it.value <= 50 }
-    )
+    return visited[endPos.to2D()] to visited.count { it.value <= 50 }
 }
 
 data class Pos(val x: Int, val y: Int, val z: Int = 0) {

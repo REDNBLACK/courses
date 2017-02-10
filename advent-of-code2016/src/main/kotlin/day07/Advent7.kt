@@ -52,12 +52,15 @@ fun main(args: Array<String>) {
     println(finsSupportingSSL(input).size)
 }
 
+fun findSupportingTLS(input: String) = parseIP(input).filter(IP::supportsTLS)
+fun finsSupportingSSL(input: String) = parseIP(input).filter(IP::supportsSSL)
+
 data class IP(val sequences: List<String>, val hypernet: List<String>) {
     fun supportsTLS() = !hypernet.any { it.hasRepeating(4) } && sequences.any { it.hasRepeating(4) }
 
     fun supportsSSL() = sequences.filter { it.hasRepeating(3) }
-                .filter { aba -> hypernet.any { compare(it, aba, 3) } }
-                .isNotEmpty()
+            .filter { aba -> hypernet.any { compare(it, aba, 3) } }
+            .isNotEmpty()
 
     private fun String.hasRepeating(length: Int) = chunk(length).any {
         it == it.reversed() && it.toCharArray().distinct().size > 1
@@ -71,10 +74,6 @@ data class IP(val sequences: List<String>, val hypernet: List<String>) {
         return first.any { it in second }
     }
 }
-
-fun findSupportingTLS(input: String) = parseIP(input).filter(IP::supportsTLS)
-
-fun finsSupportingSSL(input: String) = parseIP(input).filter(IP::supportsSSL)
 
 private fun parseIP(input: String) = input.splitToLines()
         .map {
