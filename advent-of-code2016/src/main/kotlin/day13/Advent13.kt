@@ -1,6 +1,7 @@
 package day13
 
-import array2d
+import day13.Pos.Pos2D
+import java.util.*
 
 /**
 --- Day 13: A Maze of Twisty Little Cubicles ---
@@ -40,41 +41,43 @@ Thus, reaching 7,4 would take a minimum of 11 steps (starting from your current 
 
 What is the fewest number of steps required for you to reach 31,39?
 
+--- Part Two ---
+
+How many locations (distinct x,y coordinates, including your starting location) can you reach in at most 50 steps?
+
  */
 
 fun main(args: Array<String>) {
-    val matrix1 = array2d(7, 10) { false }
-
-    matrix1.fillMatrix(10)
-    matrix1.drawMatrix()
-    findPath(matrix1)
+    println(findShortestPath(10, Pos(7, 4)))
+    println(findShortestPath(1362, Pos(31, 39)))
 }
 
-data class Pos(val x: Int, val y: Int)
-
-fun findPath(matrix: Array<Array<Boolean>>) {
-    val resultPos = Pos(7, 4)
-    var pos = Pos(1, 1)
-
-    while (pos != resultPos) {
-        pos = directions(pos.x, pos.y).filter { it.x >= 0 && it.y >= 0 && !matrix[it.x][it.y] }
-                .first()
+fun findShortestPath(size: Int, endPos: Pos): Map<String, Int?> {
+    val positions = sequenceOf(Pos(1, 1, 0)).toCollection(LinkedList())
+    val visited = hashMapOf<Pos2D, Int>()
+    while (positions.isNotEmpty()) {
+        val curPos = positions.pop()
+        visited.put(curPos.to2D(), curPos.z)
+        positions += curPos.next(size).filter { it.to2D() !in visited || visited[it.to2D()] ?: 0 > it.z }
     }
+
+    return hashMapOf(
+            "first" to visited[endPos.to2D()],
+            "second" to visited.count { it.value <= 50 }
+    )
 }
 
-private fun directions(x: Int, y: Int) = listOf(Pos(x - 1, y), Pos(x + 1, y), Pos(x, y - 1), Pos(x, y + 1))
+data class Pos(val x: Int, val y: Int, val z: Int = 0) {
+    data class Pos2D(val x: Int, val y: Int)
 
-private fun isWall(x: Int, y: Int, n: Int) = Integer.toBinaryString(x * x + 3 * x + 2 * x * y + y + y * y + n)
-        .count { it == '1' } % 2 != 0
-
-private fun Array<Array<Boolean>>.fillMatrix(n: Int) {
-    for ((x, row) in withIndex()) {
-        for ((y, _skip) in row.withIndex()) {
-            this[x][y] = isWall(y, x, n)
-        }
-    }
-}
-
-private fun Array<Array<Boolean>>.drawMatrix() {
-    println(map { it.map { if (it) '#' else '.' }.joinToString("") }.joinToString(System.lineSeparator()))
+    fun to2D() = Pos2D(x, y)
+    fun isWall(size: Int) = Integer.toBinaryString(x * x + 3 * x + 2 * x * y + y + y * y + size)
+            .count { it == '1' } % 2 != 0
+    fun next(size: Int) = listOf(
+                    Pos(x, y + 1, z + 1),
+                    Pos(x, y - 1, z + 1),
+                    Pos(x + 1, y, z + 1),
+                    Pos(x - 1, y, z + 1)
+            )
+            .filter { !it.isWall(size) }
 }
