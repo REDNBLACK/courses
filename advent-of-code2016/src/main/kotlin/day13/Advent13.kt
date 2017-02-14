@@ -50,6 +50,7 @@ How many locations (distinct x,y coordinates, including your starting location) 
 fun main(args: Array<String>) {
     println(findShortestPath(10, Pos(7, 4)).first == 11)
     println(findShortestPath(1362, Pos(31, 39)))
+    //138
 }
 
 fun findShortestPath(size: Int, endPos: Pos): Pair<Int?, Int?> {
