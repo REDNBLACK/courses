@@ -56,10 +56,12 @@ fun main(args: Array<String>) {
     val input = parseInput("day21-input.txt")
 
     println(scramble("abcde", test) == "decab")
-    println(scramble("abcdefgh", input) == "gbhcefad")
+    println(scramble("abcdefgh", input))
+    println(scramble("fbgdceah", input, true))
 }
 
-fun scramble(string: String, operationsInput: String) = parseOperations(operationsInput)
+fun scramble(string: String, operationsInput: String, reversed: Boolean = false) = parseOperations(operationsInput)
+        .let { if (reversed) it.reversed() else it }
         .fold(string, { s, o ->
             when (o.type) {
                 SWAP_POS -> {
@@ -71,24 +73,23 @@ fun scramble(string: String, operationsInput: String) = parseOperations(operatio
                     s.swap(from, to)
                 }
                 ROTATE -> {
-                    val (direction, times) = o.argsAsString()
-                    when (direction) {
-                        "left" -> s.rotate(times.toInt())
-                        "right" -> s.rotate(-times.toInt())
-                        else -> throw IllegalArgumentException(direction)
-                    }
+                    val times = o.argsAsInt().first()
+                    s.rotate(times * (if (reversed) -1 else 1))
                 }
                 ROTATE_BASED -> {
-                    val index = o.argsAsString().first().let { s.indexOf(it) }
-                    val times = 1 + index + (if (index >= 4) 1 else 0)
-                    s.rotate(-times)
+                    val i = o.argsAsString().first().let { s.indexOf(it) }
+                    val times = when (reversed) {
+                        true -> i / 2 + (if (i % 2 == 1 || i == 0) 1 else 5)
+                        false -> -(1 + i + (if (i >= 4) 1 else 0))
+                    }
+                    s.rotate(times)
                 }
                 REVERSE -> {
                     val (from, to) = o.argsAsInt()
                     s.reverseSubstring(from, to)
                 }
                 MOVE -> {
-                    val (from, to) = o.argsAsInt()
+                    val (from, to) = o.argsAsInt().let { if (reversed) it.reversed() else it }
                     s.move(from, to)
                 }
             }
@@ -122,6 +123,7 @@ private fun parseOperations(input: String) = input.splitToLines()
                         .map { it.groupValues.drop(1) }
                         .toList()
                         .flatMap { it }
+                        .let { listOf(if (it.first() == "left") it.last().toInt() else -it.last().toInt()) }
                 )
                 it.startsWith("move") -> Operation(MOVE, it.indexes())
                 else -> throw IllegalArgumentException(it)
