@@ -43,7 +43,7 @@ fun String.chunk(size: Int) = (0..length - size).map { i -> substring(i, i + siz
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int) -> INNER): Array<Array<INNER>>
         = Array(sizeOuter) { Array(sizeInner, innerInit) }
-
+inline fun <reified T> matrix2d(height: Int, width: Int, init: (Int, Int) -> Array<T>) = Array<Array<T>>(height, { row -> init(row, width) })
 
 fun String.splitToLines(splitBy: String = "\n") = trim().split(splitBy).map(String::trim).filter(String::isNotEmpty)
 fun String.toMD5() = MessageDigest.getInstance("MD5").digest(toByteArray())
