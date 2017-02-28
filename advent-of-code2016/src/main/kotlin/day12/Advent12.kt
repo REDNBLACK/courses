@@ -3,6 +3,8 @@ package day12
 import day12.Operation.Type.*
 import parseInput
 import splitToLines
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
 --- Day 12: Leonardo's Monorail ---
@@ -35,6 +37,12 @@ The above code would set register a to 41, increase its value by 2, decrease its
 
 After executing the assembunny code in your puzzle input, what value is left in register a?
 
+--- Part Two ---
+
+As you head down the fire escape to the monorail, you notice it didn't start; register c needs to be initialized to the position of the ignition key.
+
+If you instead initialize register c to be 1, what value is now left in register a?
+
  */
 
 fun main(args: Array<String>) {
@@ -46,55 +54,60 @@ fun main(args: Array<String>) {
                  |dec a""".trimMargin()
     val input = parseInput("day12-input.txt")
 
-    println(executeOperations(test) == mapOf("a" to 42))
-    println(executeOperations(input))
-}
+    val callback = fun (
+            operations: List<Operation>,
+            registers: Map<String, Int>,
+            index: Int
+    ): Triple<List<Operation>, Map<String, Int>, Int> {
+        val r = HashMap(registers)
+        var i = index
 
-data class Operation(val type: Operation.Type, val register: String, val value: String) {
-    enum class Type { CPY, INC, DEC, JNZ }
-}
+        fun safeValue(data: String) = try { data.toInt() } catch (e: Exception) { r[data] ?: 0 }
 
-fun executeOperations(input: String): Map<String, Int> {
-    val operations = parseOperations(input)
-    val registers = mutableMapOf<String, Int>()
-
-    fun getRegisterValue(data: String): Int {
-        return try { data.toInt() } catch (e: NumberFormatException) { registers.getOrElse(data, { 0 }) }
-    }
-
-    var index = 0
-    while (index < operations.size) {
-        val operation = operations[index]
-
-        when (operation.type) {
-            CPY -> {
-                registers.put(operation.register, getRegisterValue(operation.value))
-            }
-            DEC, INC -> {
-                val oldValue = getRegisterValue(operation.register)
-                val curValue = if (operation.type == DEC) -operation.value.toInt() else operation.value.toInt()
-
-                registers.put(operation.register, oldValue + curValue)
-            }
-            JNZ -> {
-                if (getRegisterValue(operation.register) != 0) {
-                    index += getRegisterValue(operation.value) - 1
-                }
-            }
+        val (type, arg) = operations[index]
+        when (type) {
+            CPY -> r.computeIfPresent(arg[1], { k, v -> safeValue(arg[0]) })
+            INC -> r.computeIfPresent(arg[0], { k, v -> v + 1 })
+            DEC -> r.computeIfPresent(arg[0], { k, v -> v - 1 })
+            JNZ -> if (safeValue(arg[0]) != 0) i += safeValue(arg[1]) - 1
+            else -> {}
         }
 
-        index++
+        return Triple(operations, r, i + 1)
+    }
+
+    println(executeOperations(test, callback, mapOf("a" to 0)) == mapOf("a" to 42))
+    println(executeOperations(input, callback, mapOf("a" to 0, "b" to 0, "c" to 0, "d" to 0)))
+    println(executeOperations(input, callback, mapOf("a" to 0, "b" to 0, "c" to 1, "d" to 0)))
+}
+
+data class Operation(val type: Operation.Type, val args: List<String>) {
+    enum class Type { CPY, INC, DEC, JNZ, TGL }
+}
+
+fun executeOperations(
+        input: String,
+        callback: (List<Operation>, Map<String, Int>, Int) -> Triple<List<Operation>, Map<String, Int>, Int>,
+        initial: Map<String, Int>
+): Map<String, Int> {
+    var operations = parseOperations(input)
+    var registers = initial
+    var index = 0
+
+    while (index < operations.size) {
+        val (o, r, i) = callback(operations, registers, index)
+        operations = o
+        registers = r
+        index = i
     }
 
     return registers
 }
 
-private fun parseOperations(input: String) = input.splitToLines()
+fun parseOperations(input: String) = input.splitToLines()
         .map {
             val args = it.split(" ")
             val type = Operation.Type.valueOf(args[0].toUpperCase())
-            val register = if (type == CPY) args[2] else args[1]
-            val value = if (type == CPY) args[1] else args.getOrElse(2, { "1" })
 
-            Operation(type, register, value)
+            Operation(type, args.drop(1).take(2))
         }
