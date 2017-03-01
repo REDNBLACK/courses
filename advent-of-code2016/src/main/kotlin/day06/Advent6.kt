@@ -73,23 +73,22 @@ data class Message(val payload: String) {
     fun mostFrequentChar() = payload.charByFunc { it.maxBy { it.value } }
     fun leastFrequentChar() = payload.charByFunc { it.minBy { it.value } }
 
-    private fun String.charByFunc(func: (Map<Char, Int>) -> Map.Entry<Char, Int>?): Char? {
-        val chars = toCharArray().groupBy { it }.mapValues { it.value.count() }
-
-        return func(chars)?.key
-    }
+    private fun String.charByFunc(func: (Map<Char, Int>) -> Map.Entry<Char, Int>?) = toCharArray()
+            .groupBy { it }
+            .mapValues { it.value.count() }
+            .let(func)
+            ?.key
 }
 
-fun findMostFrequentChars(input: String) = parseMessages(input).map { it.mostFrequentChar() }.joinToString("")
+fun findMostFrequentChars(input: String) = parseMessages(input).map(Message::mostFrequentChar).joinToString("")
 
-fun findLeastFrequentChars(input: String) = parseMessages(input).map { it.leastFrequentChar() }.joinToString("")
+fun findLeastFrequentChars(input: String) = parseMessages(input).map(Message::leastFrequentChar).joinToString("")
 
 private fun parseMessages(input: String): List<Message> {
     val lines = input.splitToLines().map(String::toList)
-
-    val rotate = fun (): Array<Array<Char>> {
-        val result = array2d(lines.first().size, lines.size) { '0' }
-        for ((x, line) in lines.withIndex()) {
+    fun List<List<Char>>.rotate(): Array<Array<Char>> {
+        val result = array2d(first().size, lines.size) { '0' }
+        for ((x, line) in withIndex()) {
             for ((y, char) in line.withIndex()) {
                 result[y][x] = char
             }
@@ -98,5 +97,5 @@ private fun parseMessages(input: String): List<Message> {
         return result
     }
 
-    return rotate().map { it.joinToString("") }.map(::Message)
+    return lines.rotate().map { it.joinToString("") }.map(::Message)
 }

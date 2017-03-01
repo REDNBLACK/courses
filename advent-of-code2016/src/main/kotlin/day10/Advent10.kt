@@ -57,15 +57,12 @@ fun main(args: Array<String>) {
                """.trimMargin()
     val input = parseInput("day10-input.txt")
 
-    println(findBot(test, { b -> b.low() == 2 && b.high() == 5 }) == mapOf("first" to 2, "second" to 30))
+    println(findBot(test, { b -> b.low() == 2 && b.high() == 5 }) == (2 to 30))
     println(findBot(input, { b -> b.low() == 17 && b.high() == 61 }))
 }
 
-fun findBot(input: String, predicate: (Bot) -> Boolean): Map<String, Int> {
-    val bots = parseValueAssignments(input)
-            .groupBy { it.first }
-            .map { it.key to Bot(it.key, it.value.map { it.second }.toSet()) }
-            .toMap(HashMap())
+fun findBot(input: String, predicate: (Bot) -> Boolean): Pair<Int, Int> {
+    val bots = parseBots(input)
     val outputs = HashMap<Int, Int>()
     val operations = parseOperations(input)
 
@@ -92,10 +89,7 @@ fun findBot(input: String, predicate: (Bot) -> Boolean): Map<String, Int> {
         }
     }
 
-    return mapOf(
-            "first" to botNumber,
-            "second" to (0..2).map { outputs[it] }.filterNotNull().mul()
-    )
+    return botNumber to (0..2).map { outputs[it] }.filterNotNull().mul()
 }
 
 data class Bot(val number: Int, val chips: Set<Int> = setOf()) {
@@ -131,7 +125,7 @@ private fun parseOperations(input: String) = input.splitToLines()
             )
         }
 
-private fun parseValueAssignments(input: String) = input.splitToLines()
+private fun parseBots(input: String) = input.splitToLines()
         .filter { it.startsWith("value") }
         .map {
             val (value, botNumber) = Regex("""(\d+)""")
@@ -142,3 +136,6 @@ private fun parseValueAssignments(input: String) = input.splitToLines()
 
             botNumber to value
         }
+        .groupBy { it.first }
+        .map { it.key to Bot(it.key, it.value.map { it.second }.toSet()) }
+        .toMap(HashMap())

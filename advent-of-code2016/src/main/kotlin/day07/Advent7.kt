@@ -68,8 +68,7 @@ data class IP(val sequences: List<String>, val hypernet: List<String>) {
 
     private fun compare(str1: String, str2: String, length: Int): Boolean {
         val first = str1.chunk(length)
-        val second = str2.chunk(length)
-                .map { if (it[0] == it[2]) it[1].toString() + it[0] + it[1] else "" }
+        val second = str2.chunk(length).map { if (it[0] == it[2]) it[1].toString() + it[0] + it[1] else "" }
 
         return first.any { it in second }
     }

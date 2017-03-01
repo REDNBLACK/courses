@@ -58,9 +58,7 @@ fun main(args: Array<String>) {
         val prefix = "0".repeat(5)
         if (hash.startsWith(prefix)) {
             val pos = try { hash[5].toString().toInt() } catch (e: Exception) { Int.MAX_VALUE }
-            if (pos < array.size && array[pos] == Char.MIN_SURROGATE) {
-                array[pos] = hash[6]
-            }
+            if (pos < array.size && array[pos] == Char.MIN_SURROGATE) array[pos] = hash[6]
         }
 
         array
@@ -71,6 +69,8 @@ fun main(args: Array<String>) {
 }
 
 fun findPassword(input: String, algorithm: (String, CharArray) -> CharArray, length: Int): String {
+    val array = Char.MIN_SURROGATE.toString().repeat(length).toCharArray()
+
     tailrec fun find(i: Int, array: CharArray): CharArray {
         if (!array.contains(Char.MIN_SURROGATE)) return array
 
@@ -79,6 +79,6 @@ fun findPassword(input: String, algorithm: (String, CharArray) -> CharArray, len
         return find(i + 1, algorithm(hash, array))
     }
 
-    return find(0, "${Char.MIN_SURROGATE}".repeat(length).toCharArray()).joinToString("").toLowerCase()
+    return find(0, array).joinToString("").toLowerCase()
 }
 

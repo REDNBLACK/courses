@@ -74,7 +74,7 @@ fun String.dragonCurve(length: Int? = null): String = reversed()
         .let { if (length != null && it.length < length) it.dragonCurve(length) else it }
         .let { if (length != null) it.substring(0, length) else it }
 
-fun String.checkSum(): String = (0..length - 1 step 2)
+fun String.checkSum(): String = (0 until length step 2)
         .map { this[it] to getOrElse(it + 1, { Char.MIN_SURROGATE }) }
         .filter { it.first != Char.MIN_SURROGATE && it.second != Char.MIN_SURROGATE }
         .map { if (it.first == it.second) '1' else '0' }

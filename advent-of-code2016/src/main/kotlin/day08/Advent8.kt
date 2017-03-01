@@ -84,24 +84,19 @@ fun execute(input: String, matrix: Array<Array<Boolean>>): Array<Array<Boolean>>
             this[y][x] = if (x > 0) this[y][x - 1] else right
         }
     }
+    fun <T> Array<Array<T>>.fill(value: T, maxWidth: Int, maxHeight: Int) {
+        for (w in 0 until maxWidth) {
+            for (h in 0 until maxHeight) {
+                this[h][w] = value
+            }
+        }
+    }
 
-    val operations = parseOperations(input)
-
-    for ((type, p1, p2) in operations) {
+    for ((type, p1, p2) in parseOperations(input)) {
         when (type) {
-            CREATE -> {
-                for (w in 0 until p1) {
-                    for (h in 0 until p2) {
-                        matrix[h][w] = true
-                    }
-                }
-            }
-            ROTATE_COLUMN -> {
-                repeat(p2, { matrix.shiftDown(p1) })
-            }
-            ROTATE_ROW -> {
-                repeat(p2, { matrix.shiftRight(p1) })
-            }
+            CREATE -> matrix.fill(true, p1, p2)
+            ROTATE_COLUMN -> repeat(p2, { matrix.shiftDown(p1) })
+            ROTATE_ROW -> repeat(p2, { matrix.shiftRight(p1) })
         }
     }
 
