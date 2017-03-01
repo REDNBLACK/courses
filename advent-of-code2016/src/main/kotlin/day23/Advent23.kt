@@ -1,10 +1,7 @@
 package day23
 
-import day12.Operation
-import day12.Operation.Type.*
 import day12.executeOperations
 import parseInput
-import java.util.*
 
 /**
 --- Day 23: Safe Cracking ---
@@ -68,45 +65,7 @@ fun main(args: Array<String>) {
                  |dec a""".trimMargin()
     val input = parseInput("day23-input.txt")
 
-    val callback = fun (
-            operations: List<Operation>,
-            registers: Map<String, Int>,
-            index: Int
-    ): Triple<List<Operation>, Map<String, Int>, Int> {
-        val o = operations.toMutableList()
-        val r = HashMap(registers)
-        var i = index
-
-        fun safeValue(data: String) = try { data.toInt() } catch (e: Exception) { r[data] ?: 0 }
-
-        val (type, arg) = operations[index]
-        when (type) {
-            CPY -> r.computeIfPresent(arg[1], { k, v -> safeValue(arg[0]) })
-            INC -> r.computeIfPresent(arg[0], { k, v -> v + 1 })
-            DEC -> r.computeIfPresent(arg[0], { k, v -> v - 1 })
-            JNZ -> if (safeValue(arg[0]) != 0) i += safeValue(arg[1]) - 1
-            TGL -> {
-                val changeIndex = i + safeValue(arg[0])
-
-                if (changeIndex < operations.size) {
-                    val changeOperation = operations[changeIndex]
-                    val newType = when (changeOperation.type) {
-                        CPY -> JNZ
-                        JNZ -> CPY
-                        TGL -> INC
-                        INC -> DEC
-                        DEC -> INC
-                    }
-
-                    o[changeIndex] = changeOperation.copy(type = newType)
-                }
-            }
-        }
-
-        return Triple(o, r, i + 1)
-    }
-
-    println(executeOperations(test, callback, mapOf("a" to 0)) == mapOf("a" to 3))
-    println(executeOperations(input, callback, mapOf("a" to 7, "b" to 0, "c" to 0, "d" to 0)))
-    println(executeOperations(input, callback, mapOf("a" to 12, "b" to 0, "c" to 0, "d" to 0)))
+    println(executeOperations(test, mapOf("a" to 0)) == mapOf("a" to 3))
+    println(executeOperations(input, mapOf("a" to 7, "b" to 0, "c" to 0, "d" to 0)))
+    println(executeOperations(input, mapOf("a" to 12, "b" to 0, "c" to 0, "d" to 0)))
 }

@@ -3,8 +3,6 @@ package day12
 import day12.Operation.Type.*
 import parseInput
 import splitToLines
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
 --- Day 12: Leonardo's Monorail ---
@@ -54,60 +52,72 @@ fun main(args: Array<String>) {
                  |dec a""".trimMargin()
     val input = parseInput("day12-input.txt")
 
-    val callback = fun (
-            operations: List<Operation>,
-            registers: Map<String, Int>,
-            index: Int
-    ): Triple<List<Operation>, Map<String, Int>, Int> {
-        val r = HashMap(registers)
-        var i = index
-
-        fun safeValue(data: String) = try { data.toInt() } catch (e: Exception) { r[data] ?: 0 }
-
-        val (type, arg) = operations[index]
-        when (type) {
-            CPY -> r.computeIfPresent(arg[1], { k, v -> safeValue(arg[0]) })
-            INC -> r.computeIfPresent(arg[0], { k, v -> v + 1 })
-            DEC -> r.computeIfPresent(arg[0], { k, v -> v - 1 })
-            JNZ -> if (safeValue(arg[0]) != 0) i += safeValue(arg[1]) - 1
-            else -> {}
-        }
-
-        return Triple(operations, r, i + 1)
-    }
-
-    println(executeOperations(test, callback, mapOf("a" to 0)) == mapOf("a" to 42))
-    println(executeOperations(input, callback, mapOf("a" to 0, "b" to 0, "c" to 0, "d" to 0)))
-    println(executeOperations(input, callback, mapOf("a" to 0, "b" to 0, "c" to 1, "d" to 0)))
+    println(executeOperations(test, mapOf("a" to 0)) == mapOf("a" to 42))
+    println(executeOperations(input, mapOf("a" to 0, "b" to 0, "c" to 0, "d" to 0)))
+    println(executeOperations(input, mapOf("a" to 0, "b" to 0, "c" to 1, "d" to 0)))
 }
 
 data class Operation(val type: Operation.Type, val args: List<String>) {
     enum class Type { CPY, INC, DEC, JNZ, TGL }
 }
 
-fun executeOperations(
-        input: String,
-        callback: (List<Operation>, Map<String, Int>, Int) -> Triple<List<Operation>, Map<String, Int>, Int>,
-        initial: Map<String, Int>
-): Map<String, Int> {
-    var operations = parseOperations(input)
-    var registers = initial
+fun executeOperations(input: String, initial: Map<String, Int>): Map<String, Int> {
+    val operations = parseOperations(input)
+    val registers = initial.values.toIntArray()
     var index = 0
 
-    while (index < operations.size) {
-        val (o, r, i) = callback(operations, registers, index)
-        operations = o
-        registers = r
-        index = i
+    fun safeIndex(data: String) = when (data[0]) {
+        'a' -> 0
+        'b' -> 1
+        'c' -> 2
+        'd' -> 3
+        else -> null
     }
 
-    return registers
+    fun safeValue(data: String) = when (data[0]) {
+        'a' -> registers[0]
+        'b' -> registers[1]
+        'c' -> registers[2]
+        'd' -> registers[3]
+        else -> data.toInt()
+    }
+
+    while (index < operations.size) {
+        val (type, arg) = operations[index]
+        when (type) {
+            CPY -> safeIndex(arg[1])?.let { registers[it] = safeValue(arg[0]) }
+            INC -> safeIndex(arg[0])?.let { registers[it] += 1 }
+            DEC ->  safeIndex(arg[0])?.let { registers[it] -= 1 }
+            JNZ -> if (safeValue(arg[0]) != 0) index += safeValue(arg[1]) - 1
+            TGL -> {
+                val changeIndex = index + safeValue(arg[0])
+
+                if (changeIndex < operations.size) {
+                    val changeOperation = operations[changeIndex]
+                    val newType = when (changeOperation.type) {
+                        CPY -> JNZ
+                        JNZ -> CPY
+                        TGL -> INC
+                        INC -> DEC
+                        DEC -> INC
+                    }
+
+                    operations[changeIndex] = changeOperation.copy(type = newType)
+                }
+            }
+        }
+
+        index++
+    }
+
+    return initial.keys.toTypedArray().zip(registers.toTypedArray()).toMap()
 }
 
-fun parseOperations(input: String) = input.splitToLines()
+private fun parseOperations(input: String) = input.splitToLines()
         .map {
             val args = it.split(" ")
             val type = Operation.Type.valueOf(args[0].toUpperCase())
 
             Operation(type, args.drop(1).take(2))
         }
+        .toMutableList()
