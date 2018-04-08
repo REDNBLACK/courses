@@ -19,7 +19,7 @@ object Master extends Stopper {
   }
 
   def studentFailed(event: HasTestNameAndSuiteName): String = {
-    studentNeedsToMeditate = true
+    requestStop()
     meditationMessage(event)
   }
 

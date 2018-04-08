@@ -6,7 +6,6 @@ import org.scalatest.matchers.Matcher
 import org.scalatest.events.{Event, TestFailed, TestIgnored, TestPending}
 
 trait KoanSuite extends FunSuite with Matchers {
-
   def koan(name : String)(fun: => Unit) { test(name.stripMargin('|'))(fun) }
 
   def meditate() = pending
@@ -23,27 +22,24 @@ trait KoanSuite extends FunSuite with Matchers {
     var failed = false
     def failure(event: Master.HasTestNameAndSuiteName) {
       failed = true
-      info("*****************************************")
-      info("*****************************************")
-      info("")
-      info("")
-      info("")
-      info(Master.studentFailed(event))
-      info("")
-      info("")
-      info("")
-      info("*****************************************")
-      info("*****************************************")
+      println("*****************************************")
+      println("*****************************************")
+      println()
+      println()
+      println()
+      println(Master.studentFailed(event))
+      println()
+      println()
+      println()
+      println("*****************************************")
+      println("*****************************************")
     }
 
-    def apply(event: Event) {
-      event match {
-        case e: TestIgnored => failure(event.asInstanceOf[Master.HasTestNameAndSuiteName])
-        case e: TestFailed => failure(event.asInstanceOf[Master.HasTestNameAndSuiteName])
-        case e: TestPending => failure(event.asInstanceOf[Master.HasTestNameAndSuiteName])
-        case _ => other(event)
-      }
-
+    def apply(event: Event): Unit = event match {
+      case e: TestIgnored => failure(e.asInstanceOf[Master.HasTestNameAndSuiteName])
+      case e: TestFailed => failure(e.asInstanceOf[Master.HasTestNameAndSuiteName])
+      case e: TestPending => failure(e.asInstanceOf[Master.HasTestNameAndSuiteName])
+      case e => other(e)
     }
   }
 
