@@ -1,1 +1,2 @@
-# kotlin-k-solutions
+# Kotlin Koans
+https://github.com/Kotlin/kotlin-koans
