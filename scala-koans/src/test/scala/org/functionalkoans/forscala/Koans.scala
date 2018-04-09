@@ -51,6 +51,4 @@ class Koans extends Suite {
     new AboutTypeVariance,
     new AboutEnumerations
   )
-
-  override def run(testName: Option[String], args: Args): Status = super.run(testName, args)
 }

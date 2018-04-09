@@ -1,1 +1,2 @@
-Scala Koans
+# Scala Koans
+http://www.scalakoans.org
