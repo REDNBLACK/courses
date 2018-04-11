@@ -1,0 +1,3 @@
+package testingscala
+
+class Act
